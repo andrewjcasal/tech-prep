@@ -1,0 +1,357 @@
+.interview-types-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.interview-types-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.interview-types-header h1 {
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.interview-types-header p {
+    color: #666;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.interview-types-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.interview-type-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.interview-type-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.interview-type-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.interview-type-header:hover {
+    background-color: #f8f9fa;
+}
+
+.type-info {
+    flex: 1;
+}
+
+.type-title {
+    color: #007bff;
+    margin: 0 0 1rem 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.type-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.competency-count {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.overall-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.progress-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #333;
+    min-width: 80px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    max-width: 200px;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.progress-percentage {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+    min-width: 35px;
+    text-align: right;
+}
+
+.expand-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.expand-button:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.competencies-section {
+    border-top: 1px solid #e9ecef;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+}
+
+.type-details {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.no-competencies {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.competencies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.competency-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: transform 0.2s ease;
+}
+
+.competency-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.competency-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.competency-name {
+    color: #333;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.competency-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 250px;
+}
+
+.competency-description {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.progress-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.progress-controls label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    min-width: 120px;
+}
+
+.progress-slider {
+    flex: 1;
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    max-width: 300px;
+}
+
+.progress-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.progress-slider::-webkit-slider-thumb:hover {
+    background: #0056b3;
+}
+
+.progress-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s ease;
+}
+
+.progress-slider::-moz-range-thumb:hover {
+    background: #0056b3;
+}
+
+.loading-state,
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #666;
+}
+
+.loading-state h2,
+.empty-state h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.error-message h3 {
+    margin: 0 0 0.5rem 0;
+    color: #721c24;
+}
+
+.retry-button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+    background: #c82333;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .interview-types-header h1 {
+        font-size: 2rem;
+    }
+
+    .interview-type-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .overall-progress {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .progress-bar {
+        max-width: none;
+        width: 100%;
+    }
+
+    .competency-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .competency-progress {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .progress-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .progress-controls label {
+        min-width: auto;
+    }
+
+    .progress-slider {
+        max-width: none;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .competencies-section {
+        padding: 1rem;
+    }
+
+    .competency-item {
+        padding: 1rem;
+    }
+
+    .interview-type-header {
+        padding: 1rem;
+    }
+}
