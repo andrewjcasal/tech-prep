@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { useAuth } from "../contexts/AuthContext";
 import "./AIInterviewer.css";
 
 interface Message {
@@ -29,6 +30,7 @@ export default function AIInterviewer({
   problemId,
   onBack,
 }: AIInterviewerProps) {
+  const { user } = useAuth();
   const [problem, setProblem] = useState<Problem | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
@@ -167,6 +169,7 @@ Send a welcome back message now.`;
         problem_id: problemId,
         role: "assistant",
         content: data.response,
+        user_id: user?.id,
       });
 
       setMessages((prev) => [...prev, aiMessage]);
@@ -219,6 +222,7 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
         problem_id: problemId,
         role: "assistant",
         content: data.response,
+        user_id: user?.id,
       });
 
       setMessages([aiMessage]);
@@ -249,6 +253,7 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
         problem_id: problemId,
         role: "user",
         content: currentMessage,
+        user_id: user?.id,
       });
 
       // Prepare conversation history for AI
@@ -300,6 +305,7 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
         problem_id: problemId,
         role: "assistant",
         content: responseContent,
+        user_id: user?.id,
       });
 
       setMessages((prev) => [...prev, aiMessage]);

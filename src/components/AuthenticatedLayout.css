@@ -1,0 +1,196 @@
+.authenticated-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.auth-header {
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.auth-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.app-title h1 {
+    color: #007bff;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.user-email {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.user-menu-container {
+    position: relative;
+}
+
+.user-menu-button {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.user-menu-button:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.user-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    min-width: 250px;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.user-menu-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.user-email-small {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.user-menu-divider {
+    height: 1px;
+    background: #e9ecef;
+}
+
+.user-menu-items {
+    padding: 0.5rem 0;
+}
+
+.user-menu-item {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.user-menu-item:hover {
+    background: #f8f9fa;
+}
+
+.user-menu-item:last-child {
+    color: #dc3545;
+}
+
+.user-menu-item:last-child:hover {
+    background: #f8d7da;
+}
+
+.user-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+}
+
+.auth-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .auth-header-content {
+        padding: 1rem;
+    }
+
+    .app-title h1 {
+        font-size: 1.3rem;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .user-menu {
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-header-content {
+        padding: 0.75rem;
+    }
+
+    .app-title h1 {
+        font-size: 1.2rem;
+    }
+}

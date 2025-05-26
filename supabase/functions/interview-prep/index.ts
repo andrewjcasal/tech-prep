@@ -39,6 +39,39 @@ serve(async (req) => {
   }
 
   try {
+    // Get the authorization header
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization header required' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: authHeader }
+      }
+    })
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
     const { jobPosting, notes }: RequestBody = await req.json()
 
     if (!jobPosting?.trim()) {
@@ -61,11 +94,6 @@ serve(async (req) => {
         }
       )
     }
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Construct the prompt for ChatGPT
     const systemPrompt = `You are an expert technical interview coach. Your job is to analyze job postings and provide structured preparation advice for technical interviews.
@@ -168,7 +196,8 @@ Respond with a valid JSON object containing an array of interview types with det
         .from('job_postings')
         .insert({
           content: jobPosting,
-          notes: notes || null
+          notes: notes || null,
+          user_id: user.id
         })
         .select()
         .single()
