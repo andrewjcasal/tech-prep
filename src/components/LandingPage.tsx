@@ -2,13 +2,55 @@ import { useState } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "../lib/supabase";
+import PricingPage from "./PricingPage";
 import "./LandingPage.css";
 
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<
+    "free" | "weekly" | "monthly" | null
+  >(null);
+
+  // Show pricing page if requested
+  if (showPricing) {
+    return (
+      <PricingPage
+        onBack={() => setShowPricing(false)}
+        onSignUp={(plan) => {
+          setSelectedPlan(plan || "free");
+          setShowPricing(false);
+          setShowAuth(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="landing-container">
+      {/* Top Navigation */}
+      <nav className="landing-nav">
+        <div className="nav-content">
+          <div className="nav-logo">
+            <h2>Tech Interview Prep</h2>
+          </div>
+          <div className="nav-links">
+            <button className="nav-link" onClick={() => setShowPricing(true)}>
+              Pricing
+            </button>
+            <button
+              className="nav-button"
+              onClick={() => {
+                setSelectedPlan(null);
+                setShowAuth(true);
+              }}
+            >
+              Sign In
+            </button>
+          </div>
+        </div>
+      </nav>
+
       <div className="landing-hero">
         <div className="hero-content">
           <h1 className="hero-title">Master Your Technical Interviews</h1>
@@ -49,15 +91,18 @@ export default function LandingPage() {
           <div className="hero-actions">
             <button
               className="cta-button primary"
-              onClick={() => setShowAuth(true)}
+              onClick={() => {
+                setSelectedPlan("free");
+                setShowAuth(true);
+              }}
             >
-              Get Started Free
+              Start Free Trial
             </button>
             <button
               className="cta-button secondary"
-              onClick={() => setShowAuth(true)}
+              onClick={() => setShowPricing(true)}
             >
-              Sign In
+              View Pricing
             </button>
           </div>
         </div>
@@ -67,14 +112,34 @@ export default function LandingPage() {
         <div className="auth-modal">
           <div className="auth-modal-content">
             <div className="auth-header">
-              <h2>Welcome to Tech Interview Prep</h2>
+              <h2>
+                {selectedPlan === "free"
+                  ? "Start Your Free Trial"
+                  : selectedPlan === "weekly"
+                  ? "Sign Up for Weekly Plan"
+                  : selectedPlan === "monthly"
+                  ? "Sign Up for Monthly Plan"
+                  : "Welcome to Tech Interview Prep"}
+              </h2>
               <button
                 className="close-button"
-                onClick={() => setShowAuth(false)}
+                onClick={() => {
+                  setShowAuth(false);
+                  setSelectedPlan(null);
+                }}
               >
                 ×
               </button>
             </div>
+
+            {selectedPlan && selectedPlan !== "free" && (
+              <div className="auth-plan-info">
+                <p>
+                  After signing up, you'll be redirected to complete your{" "}
+                  {selectedPlan} subscription.
+                </p>
+              </div>
+            )}
 
             <div className="auth-form">
               <Auth
@@ -91,7 +156,11 @@ export default function LandingPage() {
                   },
                 }}
                 providers={["google", "github"]}
-                redirectTo={window.location.origin}
+                redirectTo={
+                  selectedPlan && selectedPlan !== "free"
+                    ? `${window.location.origin}?plan=${selectedPlan}`
+                    : window.location.origin
+                }
               />
             </div>
           </div>

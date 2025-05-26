@@ -1,11 +1,76 @@
 .landing-container {
-    min-height: 100vh;
+min-height: 100vh;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }
 
+/* Top Navigation */
+.landing-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 100;
+    padding: 1rem 0;
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.nav-logo h2 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    padding: 0.5rem 0;
+}
+
+.nav-link:hover {
+    opacity: 0.8;
+}
+
+.nav-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
 .landing-hero {
-    padding: 4rem 2rem;
+padding: 8rem 2rem 4rem 2rem;
     text-align: center;
     min-height: 100vh;
     display: flex;
@@ -174,8 +239,22 @@
     background: #f8f9fa;
 }
 
+.auth-plan-info {
+    background: #e3f2fd;
+    border: 1px solid #2196f3;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0 1.5rem;
+    color: #1565c0;
+    text-align: center;
+}
+
+.auth-plan-info p {
+    margin: 0;
+    font-size: 0.9rem;
+}
 .auth-form {
-    padding: 1.5rem;
+padding: 1.5rem;
 }
 
 /* Landing Details */
@@ -281,50 +360,66 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .hero-title {
-        font-size: 2.5rem;
+.nav-content {
+        padding: 0 1rem;
     }
 
-    .hero-subtitle {
-        font-size: 1.1rem;
+    .nav-logo h2 {
+        font-size: 1.3rem;
     }
 
-    .hero-features {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+    .nav-links {
+        gap: 1rem;
     }
 
-    .feature {
-        padding: 1.5rem;
+    .nav-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
     }
+  .hero-title {
+      font-size: 2.5rem;
+  }
 
-    .hero-actions {
-        flex-direction: column;
-        align-items: center;
+  .hero-subtitle {
+      font-size: 1.1rem;
+  }
+
+  .hero-features {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+  }
+
+  .feature {
+      padding: 1.5rem;
+  }
+
+  .hero-actions {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .cta-button {
+      width: 100%;
+      max-width: 300px;
+  }
+
+  .steps {
+      grid-template-columns: 1fr;
+  }
+
+  .step {
+      flex-direction: column;
+      text-align: center;
+  }
+
+  .auth-modal {
+      padding: 1rem;
+  }
+
+  .landing-hero {
+    padding: 6rem 1rem 2rem 1rem;
     }
-
-    .cta-button {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .steps {
-        grid-template-columns: 1fr;
-    }
-
-    .step {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .auth-modal {
-        padding: 1rem;
-    }
-
-    .landing-hero {
-        padding: 2rem 1rem;
-    }
-
+    
     .landing-details {
         padding: 2rem 1rem;
     }

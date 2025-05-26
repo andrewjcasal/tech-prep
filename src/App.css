@@ -29,3 +29,34 @@
         transform: rotate(360deg);
     }
 }
+/* Post Auth Handler */
+.post-auth-handler {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.processing-message {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 3rem;
+    max-width: 400px;
+}
+
+.processing-message h3 {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.processing-message p {
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.5;
+}

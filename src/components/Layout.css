@@ -14,6 +14,8 @@
     height: 100vh;
     overflow-y: auto;
     z-index: 1000;
+    display: flex;
+        flex-direction: column;
 }
 
 .sidebar-header {
@@ -30,6 +32,7 @@
 
 .sidebar-nav {
     padding: 1rem 0;
+    flex: 1;
 }
 
 .nav-item {
@@ -63,10 +66,135 @@
     height: 20px;
 }
 
+/* Sidebar User Section */
+.sidebar-user-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.sidebar-user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-user-avatar {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.sidebar-user-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-user-name {
+    font-weight: 600;
+    color: white;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-user-email {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-user-menu-container {
+    position: relative;
+}
+
+.sidebar-user-menu-button {
+    padding: 0;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.sidebar-user-menu-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.sidebar-user-menu {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    min-width: 150px;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.sidebar-user-menu-item {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #333;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.sidebar-user-menu-item:hover {
+    background: #f8f9fa;
+}
+
+.sidebar-user-menu-item:last-child {
+    color: #dc3545;
+}
+
+.sidebar-user-menu-item:last-child:hover {
+    background: #f8d7da;
+}
+
+.sidebar-user-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+}
 .main-content {
     flex: 1;
     margin-left: 250px;
-    padding: 2rem;
     overflow-x: auto;
 }
 
@@ -78,7 +206,6 @@
 
     .main-content {
         margin-left: 200px;
-        padding: 1rem;
     }
 
     .nav-item {
@@ -93,6 +220,17 @@
     .sidebar-header h2 {
         font-size: 1.3rem;
     }
+.sidebar-user-section {
+    padding: 0.75rem 1rem;
+}
+
+.sidebar-user-name {
+    font-size: 0.85rem;
+}
+
+.sidebar-user-email {
+    font-size: 0.7rem;
+}
 }
 
 @media (max-width: 640px) {
@@ -121,4 +259,17 @@
     .sidebar:not(:hover) .sidebar-header h2 {
         display: none;
     }
+.sidebar:not(:hover) .sidebar-user-details {
+    display: none;
+}
+
+.sidebar:not(:hover) .sidebar-user-section {
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+.sidebar-user-menu {
+    left: calc(100% + 0.5rem);
+    bottom: 0;
+}
 }
