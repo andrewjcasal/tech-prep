@@ -35,7 +35,20 @@ export default function AIInterviewer({
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingProblem, setIsLoadingProblem] = useState(true);
   const [error, setError] = useState("");
+  const [canEndInterview, setCanEndInterview] = useState(false);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackData, setFeedbackData] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Check if we should show feedback view
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("feedback") === "true") {
+      setShowFeedback(true);
+      fetchFeedbackData();
+    }
+  }, [problemId]);
 
   useEffect(() => {
     fetchProblemAndMessages();
@@ -79,6 +92,16 @@ export default function AIInterviewer({
 
       if (messagesData && messagesData.length > 0) {
         setMessages(messagesData);
+        // Check if the last message was from the user and we need to welcome them back
+        const lastMessage = messagesData[messagesData.length - 1];
+        const timeSinceLastMessage =
+          new Date().getTime() - new Date(lastMessage.created_at).getTime();
+        const hoursAgo = timeSinceLastMessage / (1000 * 60 * 60);
+
+        // If it's been more than 30 minutes and last message was from user, send a welcome back message
+        if (hoursAgo > 0.5 && lastMessage.role === "user") {
+          await sendWelcomeBackMessage(problemData);
+        }
       } else {
         // Start conversation with AI introduction
         await startConversation(problemData);
@@ -90,24 +113,86 @@ export default function AIInterviewer({
     }
   };
 
-  const startConversation = async (problemData: Problem) => {
-    const initialPrompt = `You are an experienced technical interviewer conducting a ${problemData.interview_types.type} interview. 
+  const sendWelcomeBackMessage = async (problemData: Problem) => {
+    const welcomeBackPrompt = `The user has returned to this ${problemData.interview_types.type} interview session after some time away. 
 
-The candidate will be working on this problem:
+PROBLEM CONTEXT (don't repeat this to the user - they can see it):
 Title: ${problemData.title}
 Description: ${problemData.description}
 Difficulty: ${problemData.difficulty}
 
-Your role:
-1. Start by greeting the candidate and briefly explaining the problem
-2. Ask clarifying questions to understand their approach
-3. Guide them through their solution step by step
-4. Provide hints if they get stuck, but don't give away the answer
-5. Ask follow-up questions about edge cases, optimization, or alternative approaches
-6. Be encouraging but thorough in your evaluation
-7. Keep responses concise and focused
+INSTRUCTIONS:
+- Send a brief, warm welcome back message
+- Reference that you're ready to continue where you left off
+- Don't repeat the problem details
+- Ask them if they want to continue from where they left off or if they have any questions
+- Keep it short and encouraging
 
-Begin the interview now.`;
+Send a welcome back message now.`;
+
+    try {
+      // Get the current conversation history
+      const conversationHistory = messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
+      // Add the welcome back prompt as a system message
+      const messagesWithPrompt = [
+        { role: "system" as const, content: welcomeBackPrompt },
+        ...conversationHistory,
+      ];
+
+      const { data, error } = await supabase.functions.invoke(
+        "ai-interviewer",
+        {
+          body: {
+            messages: messagesWithPrompt,
+            problemId: problemId,
+          },
+        }
+      );
+
+      if (error) throw error;
+
+      const aiMessage: Message = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: data.response,
+        created_at: new Date().toISOString(),
+      };
+
+      // Save AI message to database
+      await supabase.from("messages").insert({
+        problem_id: problemId,
+        role: "assistant",
+        content: data.response,
+      });
+
+      setMessages((prev) => [...prev, aiMessage]);
+    } catch (err) {
+      console.error("Failed to send welcome back message:", err);
+    }
+  };
+
+  const startConversation = async (problemData: Problem) => {
+    const initialPrompt = `You are conducting a ${problemData.interview_types.type} interview for this problem:
+
+PROBLEM CONTEXT (don't repeat this to the user - they can see it):
+Title: ${problemData.title}
+Description: ${problemData.description}
+Difficulty: ${problemData.difficulty}
+
+INSTRUCTIONS:
+- The user can already see the problem details above, so don't repeat them unless adding clarity
+- Start with a warm, encouraging greeting
+- Ask them to share their initial thoughts on the problem
+- Be collaborative and supportive throughout
+- At any time, if the user asks for feedback on "how they're doing" or wants a "pulse check", provide encouraging, constructive feedback on their approach so far
+- Focus on their thought process and reasoning
+- Keep responses conversational and encouraging
+
+Begin the interview with a welcoming message that doesn't repeat the problem details.`;
 
     try {
       const { data, error } = await supabase.functions.invoke(
@@ -185,10 +270,28 @@ Begin the interview now.`;
 
       if (error) throw error;
 
+      // Check if the response contains evaluation data
+      let responseContent = data.response;
+      let evaluationData = null;
+
+      try {
+        // Look for JSON at the end of the response
+        const jsonMatch = responseContent.match(
+          /\{[^}]*"canEndInterview"[^}]*\}/
+        );
+        if (jsonMatch) {
+          evaluationData = JSON.parse(jsonMatch[0]);
+          // Remove the JSON from the display content
+          responseContent = responseContent.replace(jsonMatch[0], "").trim();
+        }
+      } catch (e) {
+        // If JSON parsing fails, just continue without evaluation
+      }
+
       const aiMessage: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: data.response,
+        content: responseContent,
         created_at: new Date().toISOString(),
       };
 
@@ -196,10 +299,17 @@ Begin the interview now.`;
       await supabase.from("messages").insert({
         problem_id: problemId,
         role: "assistant",
-        content: data.response,
+        content: responseContent,
       });
 
       setMessages((prev) => [...prev, aiMessage]);
+
+      // Update evaluation state
+      if (evaluationData?.canEndInterview) {
+        setCanEndInterview(true);
+        // Mark problem as completed
+        await markProblemCompleted();
+      }
     } catch (err) {
       setError("Failed to send message");
       console.error(err);
@@ -212,6 +322,86 @@ Begin the interview now.`;
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  };
+
+  const markProblemCompleted = async () => {
+    try {
+      const { error } = await supabase
+        .from("problems")
+        .update({ completed: true })
+        .eq("id", problemId);
+
+      if (error) {
+        console.error("Failed to mark problem as completed:", error);
+      } else {
+        console.log("Problem marked as completed");
+      }
+    } catch (err) {
+      console.error("Error marking problem as completed:", err);
+    }
+  };
+
+  const fetchFeedbackData = async () => {
+    try {
+      // Fetch competency history for this problem
+      const { data: historyData, error: historyError } = await supabase
+        .from("competency_history")
+        .select(
+          `
+          *,
+          competencies (
+            name,
+            description
+          )
+        `
+        )
+        .eq("problem_id", problemId)
+        .order("created_at", { ascending: false });
+
+      if (historyError) throw historyError;
+
+      setFeedbackData(historyData);
+    } catch (err) {
+      console.error("Failed to fetch feedback data:", err);
+      setError("Failed to load feedback data");
+    }
+  };
+
+  const handleEndInterview = async () => {
+    if (!problem) return;
+
+    setIsEvaluating(true);
+
+    try {
+      // Prepare messages for evaluation
+      const evaluationMessages = messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
+      const { data, error } = await supabase.functions.invoke(
+        "evaluate-interview",
+        {
+          body: {
+            problemId: problemId,
+            messages: evaluationMessages,
+          },
+        }
+      );
+
+      if (error) throw error;
+
+      // Show success message and go back to problems
+      alert(
+        `Interview completed! Your competencies have been updated based on your performance.`
+      );
+      onBack();
+    } catch (err) {
+      console.error("Failed to evaluate interview:", err);
+      alert("Failed to evaluate interview. Please try again.");
+    } finally {
+      setIsEvaluating(false);
     }
   };
 
@@ -233,7 +423,8 @@ Begin the interview now.`;
       <div className="ai-interviewer-container">
         <div className="loading-state">
           <Loader2 className="loading-spinner" size={32} />
-          <h2>Loading interview...</h2>
+          <h2>Setting up your interview session...</h2>
+          <p>Getting everything ready for a great conversation! 🚀</p>
         </div>
       </div>
     );
@@ -261,6 +452,86 @@ Begin the interview now.`;
           <button onClick={onBack} className="back-button">
             Go Back
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show feedback view if requested
+  if (showFeedback) {
+    return (
+      <div className="ai-interviewer-container">
+        <div className="interview-header">
+          <button onClick={onBack} className="back-button">
+            <ArrowLeft size={20} />
+            Back to Problems
+          </button>
+          <div className="problem-info">
+            <h1>Feedback: {problem.title}</h1>
+            <div className="problem-meta">
+              <span className="interview-type">
+                {problem.interview_types.type}
+              </span>
+              <span
+                className="difficulty-badge"
+                style={{
+                  backgroundColor: getDifficultyColor(problem.difficulty),
+                }}
+              >
+                {problem.difficulty}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="feedback-container">
+          {feedbackData && feedbackData.length > 0 ? (
+            <div className="feedback-content">
+              <h2>Your Performance Evaluation</h2>
+              <p className="feedback-intro">
+                Here's how you performed in this interview session:
+              </p>
+
+              {feedbackData.map((item: any, index: number) => (
+                <div key={index} className="competency-feedback">
+                  <h3>{item.competencies.name}</h3>
+                  <p className="competency-description">
+                    {item.competencies.description}
+                  </p>
+
+                  <div className="progress-change">
+                    <span className="progress-label">Progress:</span>
+                    <span className="progress-values">
+                      {item.progress_before}% → {item.progress_after}%
+                    </span>
+                    {item.progress_after > item.progress_before && (
+                      <span className="improvement-indicator">
+                        +{item.progress_after - item.progress_before}%
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="feedback-section">
+                    <h4>What you did well:</h4>
+                    <p className="strengths">{item.strengths_notes}</p>
+                  </div>
+
+                  <div className="feedback-section">
+                    <h4>Areas for improvement:</h4>
+                    <p className="improvements">{item.improvement_notes}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-feedback">
+              <h2>No feedback available</h2>
+              <p>
+                Complete an interview session to see your performance
+                evaluation.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -317,7 +588,7 @@ Begin the interview now.`;
                 </div>
                 <div className="message-text">
                   <Loader2 className="loading-spinner" size={16} />
-                  Thinking...
+                  Thinking through your response... 🤔
                 </div>
               </div>
             </div>
@@ -325,13 +596,35 @@ Begin the interview now.`;
           <div ref={messagesEndRef} />
         </div>
 
+        {canEndInterview && (
+          <div className="end-interview-container">
+            <button
+              onClick={handleEndInterview}
+              disabled={isEvaluating}
+              className="end-interview-button"
+            >
+              {isEvaluating ? (
+                <>
+                  <Loader2 className="loading-spinner" size={16} />
+                  Evaluating Performance...
+                </>
+              ) : (
+                "End Problem & Get Feedback"
+              )}
+            </button>
+            <p className="end-interview-note">
+              Ready to wrap up? Click to get your competency evaluation!
+            </p>
+          </div>
+        )}
+
         <div className="input-container">
           <div className="input-wrapper">
             <textarea
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your response..."
+              placeholder="Share your thoughts, ask questions, or work through your solution... You can also ask 'How am I doing?' for feedback anytime! 💭"
               rows={3}
               disabled={isLoading}
             />

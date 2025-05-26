@@ -2,6 +2,19 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import "./InterviewTypes.css";
 
+interface CompetencyHistory {
+  id: string;
+  progress_before: number;
+  progress_after: number;
+  improvement_notes: string;
+  strengths_notes: string;
+  created_at: string;
+  problems: {
+    title: string;
+    difficulty: string;
+  };
+}
+
 interface Competency {
   id: string;
   name: string;
@@ -9,6 +22,7 @@ interface Competency {
   progress_level: number;
   interview_type_id: string;
   created_at: string;
+  competency_history?: CompetencyHistory[];
 }
 
 interface InterviewType {
@@ -24,6 +38,9 @@ export default function InterviewTypes() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
+  const [expandedCompetencies, setExpandedCompetencies] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     fetchInterviewTypes();
@@ -37,11 +54,21 @@ export default function InterviewTypes() {
         .select(
           `
           *,
-          competencies (*)
+          competencies (
+            *,
+            competency_history (
+              *,
+              problems (
+                title,
+                difficulty
+              )
+            )
+          )
         `
         )
         .order("created_at", { ascending: false });
 
+      console.log(data);
       if (error) {
         throw error;
       }
@@ -53,36 +80,6 @@ export default function InterviewTypes() {
       );
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const updateCompetencyProgress = async (
-    competencyId: string,
-    newProgress: number
-  ) => {
-    try {
-      const { error } = await supabase
-        .from("competencies")
-        .update({ progress_level: newProgress })
-        .eq("id", competencyId);
-
-      if (error) {
-        throw error;
-      }
-
-      // Update local state
-      setInterviewTypes((prev) =>
-        prev.map((type) => ({
-          ...type,
-          competencies: type.competencies.map((comp) =>
-            comp.id === competencyId
-              ? { ...comp, progress_level: newProgress }
-              : comp
-          ),
-        }))
-      );
-    } catch (err) {
-      console.error("Failed to update competency progress:", err);
     }
   };
 
@@ -98,11 +95,36 @@ export default function InterviewTypes() {
     });
   };
 
+  const toggleCompetencyExpanded = (competencyId: string) => {
+    setExpandedCompetencies((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(competencyId)) {
+        newSet.delete(competencyId);
+      } else {
+        newSet.add(competencyId);
+      }
+      return newSet;
+    });
+  };
+
   const getProgressColor = (progress: number) => {
     if (progress >= 80) return "#28a745"; // Green
     if (progress >= 60) return "#ffc107"; // Yellow
     if (progress >= 40) return "#fd7e14"; // Orange
     return "#dc3545"; // Red
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "Easy":
+        return "#28a745";
+      case "Medium":
+        return "#ffc107";
+      case "Hard":
+        return "#dc3545";
+      default:
+        return "#6c757d";
+    }
   };
 
   const getProgressLabel = (progress: number) => {
@@ -214,61 +236,156 @@ export default function InterviewTypes() {
                       </div>
                     ) : (
                       <div className="competencies-list">
-                        {type.competencies.map((competency) => (
-                          <div key={competency.id} className="competency-item">
-                            <div className="competency-header">
-                              <h4 className="competency-name">
-                                {competency.name}
-                              </h4>
-                              <div className="competency-progress">
-                                <span className="progress-label">
-                                  {getProgressLabel(competency.progress_level)}
-                                </span>
-                                <div className="progress-bar">
-                                  <div
-                                    className="progress-fill"
-                                    style={{
-                                      width: `${competency.progress_level}%`,
-                                      backgroundColor: getProgressColor(
-                                        competency.progress_level
-                                      ),
-                                    }}
-                                  />
-                                </div>
-                                <span className="progress-percentage">
-                                  {competency.progress_level}%
-                                </span>
-                              </div>
-                            </div>
+                        {type.competencies.map((competency) => {
+                          const isCompetencyExpanded = expandedCompetencies.has(
+                            competency.id
+                          );
+                          const hasHistory =
+                            competency.competency_history &&
+                            competency.competency_history.length > 0;
 
-                            {competency.description && (
-                              <p className="competency-description">
-                                {competency.description}
-                              </p>
-                            )}
-
-                            <div className="progress-controls">
-                              <label htmlFor={`progress-${competency.id}`}>
-                                Update Progress:
-                              </label>
-                              <input
-                                id={`progress-${competency.id}`}
-                                type="range"
-                                min="0"
-                                max="100"
-                                step="5"
-                                value={competency.progress_level}
-                                onChange={(e) =>
-                                  updateCompetencyProgress(
-                                    competency.id,
-                                    parseInt(e.target.value)
-                                  )
+                          return (
+                            <div
+                              key={competency.id}
+                              className="competency-item"
+                            >
+                              <div
+                                className="competency-header"
+                                onClick={() =>
+                                  hasHistory &&
+                                  toggleCompetencyExpanded(competency.id)
                                 }
-                                className="progress-slider"
-                              />
+                                style={{
+                                  cursor: hasHistory ? "pointer" : "default",
+                                }}
+                              >
+                                <div className="competency-info">
+                                  <h4 className="competency-name">
+                                    {competency.name}
+                                    {hasHistory && (
+                                      <span className="history-indicator">
+                                        ({competency.competency_history!.length}{" "}
+                                        sessions)
+                                      </span>
+                                    )}
+                                  </h4>
+                                  <div className="competency-progress">
+                                    <span className="progress-label">
+                                      {getProgressLabel(
+                                        competency.progress_level
+                                      )}
+                                    </span>
+                                    <div className="progress-bar">
+                                      <div
+                                        className="progress-fill"
+                                        style={{
+                                          width: `${competency.progress_level}%`,
+                                          backgroundColor: getProgressColor(
+                                            competency.progress_level
+                                          ),
+                                        }}
+                                      />
+                                    </div>
+                                    <span className="progress-percentage">
+                                      {competency.progress_level}%
+                                    </span>
+                                  </div>
+                                </div>
+                                {hasHistory && (
+                                  <button className="expand-button">
+                                    {isCompetencyExpanded ? "▼" : "▶"}
+                                  </button>
+                                )}
+                              </div>
+
+                              {competency.description && (
+                                <p className="competency-description">
+                                  {competency.description}
+                                </p>
+                              )}
+
+                              {isCompetencyExpanded && hasHistory && (
+                                <div className="competency-history">
+                                  <h5 className="history-title">
+                                    Progress History
+                                  </h5>
+                                  <div className="history-list">
+                                    {competency
+                                      .competency_history!.sort(
+                                        (a, b) =>
+                                          new Date(b.created_at).getTime() -
+                                          new Date(a.created_at).getTime()
+                                      )
+                                      .map((historyItem) => (
+                                        <div
+                                          key={historyItem.id}
+                                          className="history-item"
+                                        >
+                                          <div className="history-header">
+                                            <div className="history-meta">
+                                              <span className="problem-title">
+                                                {historyItem.problems.title}
+                                              </span>
+                                              <span
+                                                className="difficulty-badge"
+                                                style={{
+                                                  backgroundColor:
+                                                    getDifficultyColor(
+                                                      historyItem.problems
+                                                        .difficulty
+                                                    ),
+                                                }}
+                                              >
+                                                {
+                                                  historyItem.problems
+                                                    .difficulty
+                                                }
+                                              </span>
+                                              <span className="history-date">
+                                                {new Date(
+                                                  historyItem.created_at
+                                                ).toLocaleDateString()}
+                                              </span>
+                                            </div>
+                                            <div className="progress-change">
+                                              <span className="progress-values">
+                                                {historyItem.progress_before}% →{" "}
+                                                {historyItem.progress_after}%
+                                              </span>
+                                              {historyItem.progress_after >
+                                                historyItem.progress_before && (
+                                                <span className="improvement-indicator">
+                                                  +
+                                                  {historyItem.progress_after -
+                                                    historyItem.progress_before}
+                                                  %
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+
+                                          <div className="history-feedback">
+                                            <div className="feedback-section">
+                                              <h6>Strengths:</h6>
+                                              <p className="strengths">
+                                                {historyItem.strengths_notes}
+                                              </p>
+                                            </div>
+                                            <div className="feedback-section">
+                                              <h6>Areas for improvement:</h6>
+                                              <p className="improvements">
+                                                {historyItem.improvement_notes}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>

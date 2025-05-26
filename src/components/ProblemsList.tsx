@@ -9,6 +9,7 @@ interface Problem {
   difficulty: "Easy" | "Medium" | "Hard";
   interview_type_id: string;
   created_at: string;
+  completed: boolean;
   interview_types: {
     type: string;
     details: string;
@@ -270,6 +271,19 @@ export default function ProblemsList({ onProblemClick }: ProblemsListProps) {
                   >
                     Start Practice Interview
                   </button>
+                  {problem.completed && (
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `/interview/${problem.id}?feedback=true`,
+                          "_blank"
+                        )
+                      }
+                      className="feedback-button"
+                    >
+                      View Feedback
+                    </button>
+                  )}
                 </div>
               )}
             </div>

@@ -245,6 +245,9 @@
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid #e9ecef;
+    display: flex;
+        gap: 0.75rem;
+        flex-direction: column;
 }
 
 .practice-button {
@@ -266,6 +269,24 @@
     box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
 }
 
+.feedback-button {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    font-size: 0.95rem;
+}
+
+.feedback-button:hover {
+    background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
 .loading-state,
 .empty-state {
     text-align: center;
