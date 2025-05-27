@@ -133,7 +133,7 @@ export default function Layout() {
           </div>
         </div>
       </aside>
-      <main className="main-content p-4 md:p-8">
+      <main className="main-content">
         <Routes>
           <Route path="/" element={<InterviewPrep />} />
           <Route

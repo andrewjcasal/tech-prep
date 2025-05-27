@@ -214,8 +214,10 @@ export default function ProblemsList({ onProblemClick }: ProblemsListProps) {
         <div className="problems-grid">
           {filteredProblems.map((problem) => (
             <div key={problem.id} className="problem-card">
-              <div className="problem-header">
-                <h3 className="problem-title">{problem.title}</h3>
+              <div className="problem-meta">
+                <span className="interview-type-tag">
+                  {problem.interview_types.type}
+                </span>
                 <span
                   className="difficulty-badge"
                   style={{
@@ -224,47 +226,18 @@ export default function ProblemsList({ onProblemClick }: ProblemsListProps) {
                 >
                   {problem.difficulty}
                 </span>
-              </div>
-
-              <div className="problem-meta">
-                <span className="interview-type-tag">
-                  {problem.interview_types.type}
-                </span>
                 <span className="created-date">
                   {new Date(problem.created_at).toLocaleDateString()}
                 </span>
               </div>
+              <div className="problem-header">
+                <h3 className="problem-title">{problem.title}</h3>
+              </div>
 
               <p className="problem-description">{problem.description}</p>
 
-              <div className="problem-context">
-                <details>
-                  <summary>Job Context</summary>
-                  <div className="job-context-content">
-                    <p>
-                      <strong>Job Posting:</strong>
-                    </p>
-                    <p className="job-snippet">
-                      {problem.interview_types.job_postings.content.substring(
-                        0,
-                        200
-                      )}
-                      ...
-                    </p>
-                    {problem.interview_types.job_postings.notes && (
-                      <>
-                        <p>
-                          <strong>Notes:</strong>
-                        </p>
-                        <p>{problem.interview_types.job_postings.notes}</p>
-                      </>
-                    )}
-                  </div>
-                </details>
-              </div>
-
               {onProblemClick && (
-                <div className="problem-actions">
+                <div className="problem-actions flex flex-row gap-2">
                   <button
                     onClick={() => onProblemClick(problem.id)}
                     className="practice-button"

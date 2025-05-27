@@ -41,6 +41,7 @@ export default function AIInterviewer({
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackData, setFeedbackData] = useState<any>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Check if we should show feedback view
@@ -53,6 +54,10 @@ export default function AIInterviewer({
   }, [problemId]);
 
   useEffect(() => {
+    // Reset initialization flag and fetch data when problemId changes
+    setHasInitialized(false);
+    setMessages([]);
+    setError("");
     fetchProblemAndMessages();
   }, [problemId]);
 
@@ -65,6 +70,9 @@ export default function AIInterviewer({
   };
 
   const fetchProblemAndMessages = async () => {
+    // Prevent duplicate initialization
+    if (hasInitialized) return;
+
     try {
       setIsLoadingProblem(true);
 
@@ -94,20 +102,37 @@ export default function AIInterviewer({
 
       if (messagesData && messagesData.length > 0) {
         setMessages(messagesData);
+
         // Check if the last message was from the user and we need to welcome them back
         const lastMessage = messagesData[messagesData.length - 1];
         const timeSinceLastMessage =
           new Date().getTime() - new Date(lastMessage.created_at).getTime();
         const hoursAgo = timeSinceLastMessage / (1000 * 60 * 60);
 
-        // If it's been more than 30 minutes and last message was from user, send a welcome back message
-        if (hoursAgo > 0.5 && lastMessage.role === "user") {
-          await sendWelcomeBackMessage(problemData);
+        // Only send welcome back if it's been more than 30 minutes, last message was from user,
+        // and the last message isn't already a welcome back from the assistant
+        const shouldSendWelcomeBack =
+          hoursAgo > 0.5 &&
+          lastMessage.role === "user" &&
+          !lastMessage.content.toLowerCase().includes("welcome back") &&
+          !messagesData.some(
+            (msg) =>
+              msg.role === "assistant" &&
+              msg.content.toLowerCase().includes("welcome back") &&
+              new Date().getTime() - new Date(msg.created_at).getTime() <
+                1000 * 60 * 60 // within last hour
+          );
+
+        if (shouldSendWelcomeBack) {
+          await sendWelcomeBackMessage(problemData, messagesData);
         }
       } else {
         // Start conversation with AI introduction
         await startConversation(problemData);
       }
+
+      // Mark as initialized to prevent duplicate calls
+      setHasInitialized(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load problem");
     } finally {
@@ -115,7 +140,10 @@ export default function AIInterviewer({
     }
   };
 
-  const sendWelcomeBackMessage = async (problemData: Problem) => {
+  const sendWelcomeBackMessage = async (
+    problemData: Problem,
+    existingMessages?: Message[]
+  ) => {
     const welcomeBackPrompt = `The user has returned to this ${problemData.interview_types.type} interview session after some time away. 
 
 PROBLEM CONTEXT (don't repeat this to the user - they can see it):
@@ -134,7 +162,8 @@ Send a welcome back message now.`;
 
     try {
       // Get the current conversation history
-      const conversationHistory = messages.map((msg) => ({
+      const messagesToUse = existingMessages || messages;
+      const conversationHistory = messagesToUse.map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -336,7 +365,8 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
       const { error } = await supabase
         .from("problems")
         .update({ completed: true })
-        .eq("id", problemId);
+        .eq("id", problemId)
+        .eq("user_id", user?.id);
 
       if (error) {
         console.error("Failed to mark problem as completed:", error);
@@ -468,7 +498,7 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
     return (
       <div className="ai-interviewer-container">
         <div className="interview-header">
-          <button onClick={onBack} className="back-button">
+          <button onClick={onBack} className="back-button link">
             <ArrowLeft size={20} />
             Back to Problems
           </button>

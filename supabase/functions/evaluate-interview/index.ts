@@ -118,6 +118,19 @@ Guidelines for NEW competencies:
 - New competency names should be specific and relevant to ${problemData.interview_types.type} interviews
 - Examples might include: "Error Handling", "Code Optimization", "Testing Strategy", "Communication Skills", etc.
 
+CRITICAL: For improvement_notes, provide SPECIFIC, ACTIONABLE examples:
+
+Instead of: "They could improve by discussing trade-offs between consistency, availability, and partition tolerance"
+Write: "They could improve by discussing trade-offs between consistency, availability, and partition tolerance. For example: choosing eventual consistency for user posts to maintain availability during network partitions, or using strong consistency for financial transactions even if it means temporary unavailability during failures."
+
+Instead of: "They could enhance their response by discussing service communication patterns"
+Write: "They could enhance their response by discussing service communication patterns such as: synchronous REST APIs for real-time user interactions, asynchronous message queues (like RabbitMQ/Kafka) for order processing, or event-driven architecture with webhooks for notification services."
+
+Instead of: "Could improve error handling strategies"
+Write: "Could improve error handling strategies by implementing: circuit breakers to prevent cascade failures (e.g., using Hystrix), retry mechanisms with exponential backoff for transient failures, and graceful degradation (e.g., showing cached data when the recommendation service is down)."
+
+Always include 2-3 concrete examples, specific technologies, or real-world scenarios that illustrate the improvement area.
+
 Respond in this exact JSON format (NO markdown code blocks, just raw JSON):
 {
   "evaluations": [
@@ -126,14 +139,14 @@ Respond in this exact JSON format (NO markdown code blocks, just raw JSON):
       "competency_name": "exact name for existing or new name",
       "progress_after": 75,
       "strengths_notes": "What they did well...",
-      "improvement_notes": "1-2 specific next steps for improvement..."
+      "improvement_notes": "1-2 specific next steps for improvement with concrete examples..."
     }
   ]
 }
 
 IMPORTANT: Return ONLY the JSON object above, no markdown formatting, no code blocks, no additional text.
 
-Be encouraging but honest in your evaluation. Focus on growth and specific actionable feedback.`
+Be encouraging but honest in your evaluation. Focus on growth and specific actionable feedback with concrete examples.`
 
     console.log('🔑 Checking OpenAI API key...')
     // Call OpenAI for evaluation

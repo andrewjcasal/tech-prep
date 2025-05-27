@@ -108,9 +108,9 @@ export default function InterviewTypes() {
   };
 
   const getProgressColor = (progress: number) => {
-    if (progress >= 80) return "#28a745"; // Green
-    if (progress >= 60) return "#ffc107"; // Yellow
-    if (progress >= 40) return "#fd7e14"; // Orange
+    if (progress > 90) return "#28a745"; // Green
+    if (progress >= 80) return "#ffc107"; // Yellow
+    if (progress > 60) return "#fd7e14"; // Orange
     return "#dc3545"; // Red
   };
 
@@ -185,39 +185,20 @@ export default function InterviewTypes() {
         <div className="interview-types-grid">
           {interviewTypes.map((type) => {
             const isExpanded = expandedTypes.has(type.id);
-            const overallProgress = calculateTypeProgress(type.competencies);
 
             return (
               <div key={type.id} className="interview-type-card">
                 <div
-                  className="interview-type-header"
+                  className="interview-type-header px-4 py-2"
                   onClick={() => toggleExpanded(type.id)}
                 >
                   <div className="type-info">
-                    <h3 className="type-title">{type.type}</h3>
-                    <div className="type-stats">
-                      <span className="competency-count">
-                        {type.competencies.length} competencies
+                    <h3 className="gap-2 flex items-center mb-0">
+                      <span className="border rounded-lg px-2 bg-gray-200 border-gray-300 text-lg text-gray-500">
+                        {type.competencies.length}
                       </span>
-                      <div className="overall-progress">
-                        <span className="progress-label">
-                          {getProgressLabel(overallProgress)}
-                        </span>
-                        <div className="progress-bar">
-                          <div
-                            className="progress-fill"
-                            style={{
-                              width: `${overallProgress}%`,
-                              backgroundColor:
-                                getProgressColor(overallProgress),
-                            }}
-                          />
-                        </div>
-                        <span className="progress-percentage">
-                          {overallProgress}%
-                        </span>
-                      </div>
-                    </div>
+                      <span>{type.type}</span>
+                    </h3>
                   </div>
                   <button className="expand-button">
                     {isExpanded ? "▼" : "▶"}
@@ -250,7 +231,7 @@ export default function InterviewTypes() {
                               className="competency-item"
                             >
                               <div
-                                className="competency-header"
+                                className="h-[80px] flex flex-row grid grid-cols-3 gap-2 items-center"
                                 onClick={() =>
                                   hasHistory &&
                                   toggleCompetencyExpanded(competency.id)
@@ -260,55 +241,59 @@ export default function InterviewTypes() {
                                 }}
                               >
                                 <div className="competency-info">
-                                  <h4 className="competency-name">
-                                    {competency.name}
-                                    {hasHistory && (
-                                      <span className="history-indicator">
-                                        ({competency.competency_history!.length}{" "}
-                                        sessions)
-                                      </span>
-                                    )}
-                                  </h4>
-                                  <div className="competency-progress">
-                                    <span className="progress-label">
-                                      {getProgressLabel(
-                                        competency.progress_level
+                                  <div className="flex flex-row gap-3 items-center">
+                                    {(() => {
+                                      const history =
+                                        competency.competency_history || [];
+                                      const progress =
+                                        history.length > 0
+                                          ? Math.round(
+                                              history
+                                                .slice(0, 2)
+                                                .reduce(
+                                                  (sum, item) =>
+                                                    sum + item.progress_after,
+                                                  0
+                                                ) / Math.min(history.length, 2)
+                                            )
+                                          : 0;
+                                      return (
+                                        <span
+                                          className="border rounded-xl h-[40px] w-[40px] flex items-center justify-center px-2 text-lg font-semibold text-white"
+                                          style={{
+                                            backgroundColor:
+                                              getProgressColor(progress),
+                                            borderColor:
+                                              getProgressColor(progress),
+                                          }}
+                                        >
+                                          {progress}
+                                        </span>
+                                      );
+                                    })()}
+                                    <h4 className="competency-name flex flex-col gap-1">
+                                      {competency.name}
+                                      {hasHistory && (
+                                        <span className="history-indicator">
+                                          {
+                                            competency.competency_history!
+                                              .length
+                                          }{" "}
+                                          sessions
+                                        </span>
                                       )}
-                                    </span>
-                                    <div className="progress-bar">
-                                      <div
-                                        className="progress-fill"
-                                        style={{
-                                          width: `${competency.progress_level}%`,
-                                          backgroundColor: getProgressColor(
-                                            competency.progress_level
-                                          ),
-                                        }}
-                                      />
-                                    </div>
-                                    <span className="progress-percentage">
-                                      {competency.progress_level}%
-                                    </span>
+                                    </h4>
                                   </div>
                                 </div>
-                                {hasHistory && (
-                                  <button className="expand-button">
-                                    {isCompetencyExpanded ? "▼" : "▶"}
-                                  </button>
+                                {competency.description && (
+                                  <p className="competency-description col-span-2">
+                                    {competency.description}
+                                  </p>
                                 )}
                               </div>
 
-                              {competency.description && (
-                                <p className="competency-description">
-                                  {competency.description}
-                                </p>
-                              )}
-
                               {isCompetencyExpanded && hasHistory && (
                                 <div className="competency-history">
-                                  <h5 className="history-title">
-                                    Progress History
-                                  </h5>
                                   <div className="history-list">
                                     {competency
                                       .competency_history!.sort(
@@ -317,15 +302,9 @@ export default function InterviewTypes() {
                                           new Date(a.created_at).getTime()
                                       )
                                       .map((historyItem) => (
-                                        <div
-                                          key={historyItem.id}
-                                          className="history-item"
-                                        >
+                                        <div key={historyItem.id}>
                                           <div className="history-header">
                                             <div className="history-meta">
-                                              <span className="problem-title">
-                                                {historyItem.problems.title}
-                                              </span>
                                               <span
                                                 className="difficulty-badge"
                                                 style={{
@@ -341,6 +320,9 @@ export default function InterviewTypes() {
                                                     .difficulty
                                                 }
                                               </span>
+                                              <span className="problem-title">
+                                                {historyItem.problems.title}
+                                              </span>
                                               <span className="history-date">
                                                 {new Date(
                                                   historyItem.created_at
@@ -349,31 +331,23 @@ export default function InterviewTypes() {
                                             </div>
                                             <div className="progress-change">
                                               <span className="progress-values">
-                                                {historyItem.progress_before}% →{" "}
                                                 {historyItem.progress_after}%
                                               </span>
-                                              {historyItem.progress_after >
-                                                historyItem.progress_before && (
-                                                <span className="improvement-indicator">
-                                                  +
-                                                  {historyItem.progress_after -
-                                                    historyItem.progress_before}
-                                                  %
-                                                </span>
-                                              )}
                                             </div>
                                           </div>
 
                                           <div className="history-feedback">
-                                            <div className="feedback-section">
-                                              <h6>Strengths:</h6>
+                                            <div className="flex flex-row grid grid-cols-2 gap-2">
                                               <p className="strengths">
+                                                <span className="font-bold mr-1">
+                                                  Strengths:
+                                                </span>
                                                 {historyItem.strengths_notes}
                                               </p>
-                                            </div>
-                                            <div className="feedback-section">
-                                              <h6>Areas for improvement:</h6>
                                               <p className="improvements">
+                                                <span className="font-bold mr-1">
+                                                  Areas for improvement:
+                                                </span>
                                                 {historyItem.improvement_notes}
                                               </p>
                                             </div>

@@ -57,7 +57,6 @@
 .nav-item.active {
     background: rgba(255, 255, 255, 0.15);
     color: white;
-    border-right: 3px solid white;
 }
 
 .nav-icon {

@@ -103,11 +103,7 @@
 .problems-stats {
     display: flex;
     gap: 2rem;
-    margin-bottom: 2rem;
-    padding: 1rem 1.5rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #007bff;
+    margin-bottom: 1rem;
 }
 
 .stat {
@@ -123,14 +119,14 @@
 .problems-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1.5rem;
+    gap: 0.75rem;
 }
 
 .problem-card {
     background: white;
     border: 1px solid #e9ecef;
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -170,10 +166,7 @@
 
 .problem-meta {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    gap: 1rem;
 }
 
 .interview-type-tag {
@@ -242,12 +235,9 @@
 }
 
 .problem-actions {
-    margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e9ecef;
     display: flex;
         gap: 0.75rem;
-        flex-direction: column;
 }
 
 .practice-button {
@@ -359,7 +349,6 @@
 
     .problem-meta {
         flex-direction: column;
-        align-items: flex-start;
         gap: 0.5rem;
     }
 

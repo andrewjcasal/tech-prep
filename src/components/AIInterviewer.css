@@ -19,20 +19,10 @@
     align-items: center;
     gap: 0.5rem;
     background: none;
-    border: 1px solid #e9ecef;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.back-button:hover {
-    background: #f8f9fa;
-    border-color: #007bff;
     color: #007bff;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
 }
 
 .problem-info h1 {
@@ -434,7 +424,6 @@
 .competency-description {
     color: #666;
     font-size: 0.9rem;
-    margin-bottom: 1rem;
     font-style: italic;
 }
 
@@ -442,8 +431,6 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
     background: #f8f9fa;
     border-radius: 8px;
 }
@@ -465,17 +452,6 @@
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.feedback-section {
-    margin-bottom: 1.5rem;
-}
-
-.feedback-section h4 {
-    color: #333;
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
     font-weight: 600;
 }
 
