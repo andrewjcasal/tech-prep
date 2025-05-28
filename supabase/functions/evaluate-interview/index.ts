@@ -85,6 +85,20 @@ serve(async (req) => {
       )
     }
 
+    // Fetch existing tech topics to avoid duplicates
+    console.log('🏷️ Fetching existing tech topics...')
+    const { data: techTopics, error: techTopicsError } = await supabase
+      .from('tech_topics')
+      .select('id, name, description, category')
+      .order('name')
+
+    if (techTopicsError) {
+      console.error('❌ Error fetching tech topics:', techTopicsError)
+      // Continue without tech topics if fetch fails
+    }
+
+    console.log(`🏷️ Found ${techTopics?.length || 0} existing tech topics`)
+
     // Prepare conversation for AI evaluation
     console.log('📝 Preparing conversation text for AI evaluation...')
     const conversationText = messages
@@ -92,6 +106,10 @@ serve(async (req) => {
       .join('\n\n')
     
     console.log(`💬 Conversation length: ${conversationText.length} characters`)
+
+    const techTopicsList = techTopics ? 
+      techTopics.map(t => `${t.name} (${t.category})`).join(', ') : 
+      'No existing tech topics found'
 
     const evaluationPrompt = `You are evaluating a technical interview conversation for a ${problemData.interview_types.type} problem.
 
@@ -101,6 +119,9 @@ DESCRIPTION: ${problemData.description}
 EXISTING COMPETENCIES TO EVALUATE:
 ${competencies.map(c => `- ${c.name}: ${c.description}`).join('\n')}
 
+EXISTING TECH TOPICS (prefer using these if they relate to improvement areas):
+${techTopicsList}
+
 CONVERSATION:
 ${conversationText}
 
@@ -109,9 +130,10 @@ Based on this conversation, evaluate the candidate's performance. You should:
 1. Evaluate performance in each EXISTING competency listed above
 2. If the conversation reveals skills in areas NOT covered by existing competencies, you may identify NEW competencies that are relevant to this interview type
 3. For each competency (existing or new), provide:
-   - A progress score from 0-100 (current progress for existing: ${competencies.map(c => `${c.name}: ${c.progress}%`).join(', ')})
+   - A progress score from 0-100 (current progress for existing: ${competencies.map(c => `${c.name}: ${c.progress_level || 0}%`).join(', ')})
    - What they did well (strengths)
    - 1-2 specific things they could improve on next
+   - 3 specific tech topics related to the improvement areas
 
 Guidelines for NEW competencies:
 - Only suggest new competencies if they demonstrate skills clearly different from existing ones
@@ -131,6 +153,13 @@ Write: "Could improve error handling strategies by implementing: circuit breaker
 
 Always include 2-3 concrete examples, specific technologies, or real-world scenarios that illustrate the improvement area.
 
+For tech_topics, provide 3 objects with title and description. These should be:
+- PREFER using existing tech topics from the list above if they relate to the improvement areas
+- If no existing topics relate, create new specific technical concepts, patterns, or technologies
+- Each topic should have a 2-3 paragraph description with practical examples and bullet points
+- Relevant to the improvement areas mentioned
+- Suitable for further study and practice
+
 Respond in this exact JSON format (NO markdown code blocks, just raw JSON):
 {
   "evaluations": [
@@ -139,7 +168,13 @@ Respond in this exact JSON format (NO markdown code blocks, just raw JSON):
       "competency_name": "exact name for existing or new name",
       "progress_after": 75,
       "strengths_notes": "What they did well...",
-      "improvement_notes": "1-2 specific next steps for improvement with concrete examples..."
+      "improvement_notes": "1-2 specific next steps for improvement with concrete examples...",
+      "tech_topics": [
+        {
+          "title": "Topic Name",
+          "description": "2-3 paragraph description with practical examples and bullet points explaining the concept, its applications, and how to learn it."
+        }
+      ]
     }
   ]
 }
@@ -172,7 +207,7 @@ Be encouraging but honest in your evaluation. Focus on growth and specific actio
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: evaluationPrompt }],
-        max_tokens: 2000,
+        max_tokens: 6000,
         temperature: 0.3,
       }),
     })
@@ -227,6 +262,7 @@ Be encouraging but honest in your evaluation. Focus on growth and specific actio
       progress_after: number
       improvement_notes: string
       strengths_notes: string
+      tech_topics: string[]
     }> = []
     
     for (const evalItem of evaluation.evaluations) {
@@ -294,12 +330,90 @@ Be encouraging but honest in your evaluation. Focus on growth and specific actio
       }
 
       console.log(`✅ History record created for ${competency.name}`)
+
+      // Process tech topics
+      const techTopicsToLink = []
+      if (evalItem.tech_topics && Array.isArray(evalItem.tech_topics)) {
+        console.log(`🏷️ Processing ${evalItem.tech_topics.length} tech topics for ${competency.name}...`)
+        
+        for (const topicObj of evalItem.tech_topics) {
+          if (!topicObj || typeof topicObj !== 'object' || !topicObj.title) continue
+          
+          const topicTitle = topicObj.title
+          const topicDescription = topicObj.description || 'Tech topic identified during interview evaluation'
+          
+          // Check if tech topic already exists (case-insensitive match)
+          let existingTopic = techTopics?.find(t => t.name.toLowerCase() === topicTitle.toLowerCase())
+          
+          if (!existingTopic) {
+            // Create new tech topic
+            console.log(`➕ Creating new tech topic: ${topicTitle}`)
+            const { data: newTopic, error: topicError } = await supabase
+              .from('tech_topics')
+              .insert({
+                name: topicTitle,
+                description: topicDescription,
+                category: problemData.interview_types.type
+              })
+              .select()
+              .single()
+
+            if (topicError) {
+              console.error(`❌ Failed to create tech topic "${topicTitle}":`, topicError)
+              continue
+            }
+
+            existingTopic = newTopic
+            console.log(`✅ Created new tech topic: ${topicTitle} (ID: ${existingTopic.id})`)
+          } else {
+            console.log(`✅ Found existing tech topic: ${topicTitle}`)
+            
+            // Update description if the new one is more detailed
+            if (topicDescription.length > (existingTopic.description?.length || 0)) {
+              console.log(`📝 Updating description for existing tech topic: ${topicTitle}`)
+              const { error: updateError } = await supabase
+                .from('tech_topics')
+                .update({ description: topicDescription })
+                .eq('id', existingTopic.id)
+              
+              if (updateError) {
+                console.error(`❌ Failed to update tech topic description:`, updateError)
+              } else {
+                console.log(`✅ Updated description for tech topic: ${topicTitle}`)
+              }
+            }
+          }
+
+          techTopicsToLink.push(existingTopic.id)
+        }
+
+        // Link tech topics to competency history
+        if (techTopicsToLink.length > 0) {
+          console.log(`🔗 Linking ${techTopicsToLink.length} tech topics to history record...`)
+          const linkInserts = techTopicsToLink.map(topicId => ({
+            competency_history_id: historyRecord.id,
+            tech_topic_id: topicId
+          }))
+
+          const { error: linkError } = await supabase
+            .from('competency_history_tech_topics')
+            .insert(linkInserts)
+
+          if (linkError) {
+            console.error(`❌ Failed to link tech topics:`, linkError)
+          } else {
+            console.log(`✅ Successfully linked ${techTopicsToLink.length} tech topics`)
+          }
+        }
+      }
+
       historyRecords.push({
         competency_name: competency.name,
         progress_before: progressBefore,
         progress_after: progressAfter,
         improvement_notes: evalItem.improvement_notes,
-        strengths_notes: evalItem.strengths_notes
+        strengths_notes: evalItem.strengths_notes,
+        tech_topics: evalItem.tech_topics || []
       })
     }
 

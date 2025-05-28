@@ -211,38 +211,42 @@ export default function ProblemsList({ onProblemClick }: ProblemsListProps) {
           </p>
         </div>
       ) : (
-        <div className="problems-grid">
+        <div className="problems-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredProblems.map((problem) => (
-            <div key={problem.id} className="problem-card">
-              <div className="problem-meta">
-                <span className="interview-type-tag">
-                  {problem.interview_types.type}
-                </span>
-                <span
-                  className="difficulty-badge"
-                  style={{
-                    backgroundColor: getDifficultyColor(problem.difficulty),
-                  }}
-                >
-                  {problem.difficulty}
-                </span>
-                <span className="created-date">
-                  {new Date(problem.created_at).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="problem-header">
-                <h3 className="problem-title">{problem.title}</h3>
-              </div>
+            <div
+              key={problem.id}
+              className="problem-card flex flex-col justify-between"
+            >
+              <div>
+                <div className="problem-meta gap-2 mb-3">
+                  <span className="interview-type-tag px-2 py-0.5">
+                    {problem.interview_types.type}
+                  </span>
+                  <span
+                    className="difficulty-badge px-2 py-0.5"
+                    style={{
+                      backgroundColor: getDifficultyColor(problem.difficulty),
+                    }}
+                  >
+                    {problem.difficulty}
+                  </span>
+                  <span className="created-date">
+                    {new Date(problem.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="problem-header mb-2">
+                  <h3 className="problem-title">{problem.title}</h3>
+                </div>
 
-              <p className="problem-description">{problem.description}</p>
-
+                <p className="problem-description">{problem.description}</p>
+              </div>
               {onProblemClick && (
-                <div className="problem-actions flex flex-row gap-2">
+                <div className="problem-actions grid grid-cols-2 gap-4">
                   <button
                     onClick={() => onProblemClick(problem.id)}
-                    className="practice-button"
+                    className="practice-button px-4 py-2"
                   >
-                    Start Practice Interview
+                    Start Interview
                   </button>
                   {problem.completed && (
                     <button

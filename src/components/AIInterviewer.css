@@ -35,8 +35,6 @@
 .problem-meta {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
 }
 
 .interview-type {
@@ -50,10 +48,8 @@
 
 .difficulty-badge {
     color: white;
-    padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.75rem;
-    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -328,12 +324,6 @@
         font-size: 1.5rem;
     }
 
-    .problem-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
     .messages-container {
         padding: 0.5rem;
     }
@@ -500,5 +490,62 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
+    }
+}
+/* Tech Topics Styles */
+.tech-topics-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.tech-topics-section h5 {
+    color: #333;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.tech-topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.tech-topic-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tech-topic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tech-topic-card h6 {
+    color: #007bff;
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.tech-topic-description {
+    color: #666;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .tech-topics-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .tech-topic-card {
+        padding: 0.75rem;
     }
 }

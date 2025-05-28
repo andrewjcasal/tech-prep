@@ -181,18 +181,18 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   padding: 1rem;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.8s ease;
 }
 
 .problem-card:hover {
-  background: #e9ecef;
+  background: #e4f4ff;
+    /*lighter blue*/
 }
 
 .problem-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
   gap: 1rem;
 }
 
@@ -206,10 +206,8 @@
 
 .difficulty-badge {
   color: white;
-  padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;

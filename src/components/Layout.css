@@ -60,7 +60,6 @@
 }
 
 .nav-icon {
-    margin-right: 0.75rem;
     width: 20px;
     height: 20px;
 }
@@ -130,7 +129,6 @@
     border-radius: 50%;
     width: 32px;
     height: 32px;
-    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
@@ -191,19 +189,22 @@
     bottom: 0;
     z-index: 999;
 }
-.main-content {
+.main-container {
     flex: 1;
     margin-left: 250px;
     overflow-x: auto;
 }
 
+.main-content {
+    padding: 20px;
+}
 /* Responsive design */
 @media (max-width: 768px) {
     .sidebar {
         width: 200px;
     }
 
-    .main-content {
+        .main-container {
         margin-left: 200px;
     }
 
@@ -219,17 +220,17 @@
     .sidebar-header h2 {
         font-size: 1.3rem;
     }
-.sidebar-user-section {
-    padding: 0.75rem 1rem;
-}
+        .sidebar-user-section {
+            padding: 0.75rem 1rem;
+        }
 
-.sidebar-user-name {
-    font-size: 0.85rem;
-}
+        .sidebar-user-name {
+            font-size: 0.85rem;
+        }
 
-.sidebar-user-email {
-    font-size: 0.7rem;
-}
+        .sidebar-user-email {
+            font-size: 0.7rem;
+        }
 }
 
 @media (max-width: 640px) {
@@ -243,7 +244,7 @@
         overflow: visible;
     }
 
-    .main-content {
+        .main-container {
         margin-left: 60px;
     }
 
@@ -258,17 +259,17 @@
     .sidebar:not(:hover) .sidebar-header h2 {
         display: none;
     }
-.sidebar:not(:hover) .sidebar-user-details {
-    display: none;
-}
+                                .sidebar:not(:hover) .sidebar-user-details {
+                                    display: none;
+                                }
 
-.sidebar:not(:hover) .sidebar-user-section {
-    justify-content: center;
-    padding: 0.75rem;
-}
+                                .sidebar:not(:hover) .sidebar-user-section {
+                                    justify-content: center;
+                                    padding: 0.75rem;
+                                }
 
-.sidebar-user-menu {
-    left: calc(100% + 0.5rem);
-    bottom: 0;
-}
+                                .sidebar-user-menu {
+                                    left: calc(100% + 0.5rem);
+                                    bottom: 0;
+                                }
 }

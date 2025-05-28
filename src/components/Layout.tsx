@@ -10,6 +10,7 @@ import {
   FileText,
   List,
   Target,
+  Code,
   User,
   LogOut,
   Settings,
@@ -24,6 +25,7 @@ import InterviewPrep from "./InterviewPrep";
 import ProblemsList from "./ProblemsList";
 import InterviewTypes from "./InterviewTypes";
 import AIInterviewer from "./AIInterviewer";
+import LeetCodePrep from "./LeetCodePrep";
 import "./Layout.css";
 
 // Wrapper component to pass problemId from URL params to AIInterviewer
@@ -73,15 +75,15 @@ export default function Layout() {
             className={`nav-item ${isActive("/") ? "active" : ""}`}
             onClick={() => navigate("/")}
           >
-            <FileText className="nav-icon" size={20} />
-            Interview Prep
+            <FileText className="nav-icon sm:mr-4" size={20} />
+            <span className="sm:block hidden">Interview Prep</span>
           </button>
           <button
             className={`nav-item ${isActive("/problems") ? "active" : ""}`}
             onClick={() => navigate("/problems")}
           >
-            <List className="nav-icon" size={20} />
-            Problems List
+            <List className="nav-icon sm:mr-4" size={20} />
+            <span className="sm:block hidden">Problems List</span>
           </button>
           <button
             className={`nav-item ${
@@ -89,8 +91,15 @@ export default function Layout() {
             }`}
             onClick={() => navigate("/interview-types")}
           >
-            <Target className="nav-icon" size={20} />
-            Interview Types
+            <Target className="nav-icon sm:mr-4" size={20} />
+            <span className="sm:block hidden">Interview Types</span>
+          </button>
+          <button
+            className={`nav-item ${isActive("/leetcode") ? "active" : ""}`}
+            onClick={() => navigate("/leetcode")}
+          >
+            <Code className="nav-icon sm:mr-4" size={20} />
+            <span className="sm:block hidden">LeetCode Prep</span>
           </button>
         </nav>
 
@@ -109,7 +118,7 @@ export default function Layout() {
 
           <div className="sidebar-user-menu-container">
             <button
-              className="sidebar-user-menu-button"
+              className="sidebar-user-menu-button hidden sm:block"
               onClick={() => setShowUserMenu(!showUserMenu)}
             >
               <SlidersHorizontal size={20} />
@@ -133,19 +142,22 @@ export default function Layout() {
           </div>
         </div>
       </aside>
-      <main className="main-content">
-        <Routes>
-          <Route path="/" element={<InterviewPrep />} />
-          <Route
-            path="/problems"
-            element={<ProblemsList onProblemClick={handleProblemClick} />}
-          />
-          <Route path="/interview-types" element={<InterviewTypes />} />
-          <Route
-            path="/interview/:problemId"
-            element={<AIInterviewerWrapper onBack={handleBackToProblems} />}
-          />
-        </Routes>
+      <main className="main-container">
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<InterviewPrep />} />
+            <Route
+              path="/problems"
+              element={<ProblemsList onProblemClick={handleProblemClick} />}
+            />
+            <Route path="/interview-types" element={<InterviewTypes />} />
+            <Route path="/leetcode" element={<LeetCodePrep />} />
+            <Route
+              path="/interview/:problemId"
+              element={<AIInterviewerWrapper onBack={handleBackToProblems} />}
+            />
+          </Routes>
+        </div>
       </main>
 
       {showUserMenu && (

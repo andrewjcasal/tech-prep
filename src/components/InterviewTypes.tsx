@@ -13,6 +13,13 @@ interface CompetencyHistory {
     title: string;
     difficulty: string;
   };
+  competency_history_tech_topics?: Array<{
+    tech_topics: {
+      id: string;
+      name: string;
+      description: string;
+    };
+  }>;
 }
 
 interface Competency {
@@ -61,6 +68,13 @@ export default function InterviewTypes() {
               problems (
                 title,
                 difficulty
+              ),
+              competency_history_tech_topics (
+                tech_topics (
+                  id,
+                  name,
+                  description
+                )
               )
             )
           )
@@ -306,7 +320,7 @@ export default function InterviewTypes() {
                                           <div className="history-header">
                                             <div className="history-meta">
                                               <span
-                                                className="difficulty-badge"
+                                                className="difficulty-badge px-2 py-0.5"
                                                 style={{
                                                   backgroundColor:
                                                     getDifficultyColor(
@@ -344,12 +358,48 @@ export default function InterviewTypes() {
                                                 </span>
                                                 {historyItem.strengths_notes}
                                               </p>
-                                              <p className="improvements">
-                                                <span className="font-bold mr-1">
-                                                  Areas for improvement:
-                                                </span>
-                                                {historyItem.improvement_notes}
-                                              </p>
+                                              <div className="improvements-section">
+                                                <p className="improvements">
+                                                  <span className="font-bold mr-1">
+                                                    Areas for improvement:
+                                                  </span>
+                                                  {
+                                                    historyItem.improvement_notes
+                                                  }
+                                                </p>
+
+                                                {/* Display tech topics if available */}
+                                                {historyItem.competency_history_tech_topics &&
+                                                  historyItem
+                                                    .competency_history_tech_topics
+                                                    .length > 0 && (
+                                                    <div className="tech-topics-section mt-3">
+                                                      <h6 className="tech-topics-title">
+                                                        Related Tech Topics to
+                                                        Study:
+                                                      </h6>
+                                                      <div className="tech-topics-list">
+                                                        {historyItem.competency_history_tech_topics.map(
+                                                          (
+                                                            topicLink: any,
+                                                            topicIndex: number
+                                                          ) => (
+                                                            <div
+                                                              key={topicIndex}
+                                                              className="tech-topic-pill"
+                                                            >
+                                                              {
+                                                                topicLink
+                                                                  .tech_topics
+                                                                  .name
+                                                              }
+                                                            </div>
+                                                          )
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                  )}
+                                              </div>
                                             </div>
                                           </div>
                                         </div>

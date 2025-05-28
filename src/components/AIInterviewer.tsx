@@ -19,6 +19,7 @@ interface Problem {
   interview_types: {
     type: string;
   };
+  completed: boolean;
 }
 
 interface AIInterviewerProps {
@@ -380,7 +381,7 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
 
   const fetchFeedbackData = async () => {
     try {
-      // Fetch competency history for this problem
+      // Fetch competency history for this problem with tech topics
       const { data: historyData, error: historyError } = await supabase
         .from("competency_history")
         .select(
@@ -389,6 +390,13 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
           competencies (
             name,
             description
+          ),
+          competency_history_tech_topics (
+            tech_topics (
+              id,
+              name,
+              description
+            )
           )
         `
         )
@@ -555,6 +563,31 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
                   <div className="feedback-section">
                     <h4>Areas for improvement:</h4>
                     <p className="improvements">{item.improvement_notes}</p>
+
+                    {/* Display tech topics if available */}
+                    {item.competency_history_tech_topics &&
+                      item.competency_history_tech_topics.length > 0 && (
+                        <div className="tech-topics-section">
+                          <h5>Related Tech Topics to Study:</h5>
+                          <div className="tech-topics-grid">
+                            {item.competency_history_tech_topics.map(
+                              (topicLink: any, topicIndex: number) => (
+                                <div
+                                  key={topicIndex}
+                                  className="tech-topic-card"
+                                >
+                                  <h6>{topicLink.tech_topics.name}</h6>
+                                  {topicLink.tech_topics.description && (
+                                    <p className="tech-topic-description">
+                                      {topicLink.tech_topics.description}
+                                    </p>
+                                  )}
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )}
                   </div>
                 </div>
               ))}
@@ -582,12 +615,12 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
         </button>
         <div className="problem-info">
           <h1>{problem.title}</h1>
-          <div className="problem-meta">
-            <span className="interview-type">
+          <div className="problem-meta mb-2">
+            <span className="interview-type mr-2">
               {problem.interview_types.type}
             </span>
             <span
-              className="difficulty-badge"
+              className="difficulty-badge px-2 py-1"
               style={{
                 backgroundColor: getDifficultyColor(problem.difficulty),
               }}
@@ -632,27 +665,28 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
           <div ref={messagesEndRef} />
         </div>
 
-        {canEndInterview && (
-          <div className="end-interview-container">
-            <button
-              onClick={handleEndInterview}
-              disabled={isEvaluating}
-              className="end-interview-button"
-            >
-              {isEvaluating ? (
-                <>
-                  <Loader2 className="loading-spinner" size={16} />
-                  Evaluating Performance...
-                </>
-              ) : (
-                "End Problem & Get Feedback"
-              )}
-            </button>
-            <p className="end-interview-note">
-              Ready to wrap up? Click to get your competency evaluation!
-            </p>
-          </div>
-        )}
+        {canEndInterview ||
+          (problem.completed && (
+            <div className="end-interview-container">
+              <button
+                onClick={handleEndInterview}
+                disabled={isEvaluating}
+                className="end-interview-button"
+              >
+                {isEvaluating ? (
+                  <>
+                    <Loader2 className="loading-spinner" size={16} />
+                    Evaluating Performance...
+                  </>
+                ) : (
+                  "End Problem & Get Feedback"
+                )}
+              </button>
+              <p className="end-interview-note">
+                Ready to wrap up? Click to get your competency evaluation!
+              </p>
+            </div>
+          ))}
 
         <div className="input-container">
           <div className="input-wrapper">

@@ -118,8 +118,6 @@
 
 .problems-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 0.75rem;
 }
 
 .problem-card {
@@ -128,11 +126,10 @@
     border-radius: 12px;
     padding: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: box-shadow 0.2s ease;
 }
 
 .problem-card:hover {
-    transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
@@ -140,7 +137,6 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1rem;
     gap: 1rem;
 }
 
@@ -155,10 +151,8 @@
 
 .difficulty-badge {
     color: white;
-    padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.75rem;
-    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
@@ -172,7 +166,6 @@
 .interview-type-tag {
     background: #e3f2fd;
     color: #1976d2;
-    padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 500;
@@ -236,15 +229,12 @@
 
 .problem-actions {
     padding-top: 1rem;
-    display: flex;
-        gap: 0.75rem;
 }
 
 .practice-button {
     background: #007bff;
     color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-weight: 500;
     cursor: pointer;
@@ -263,7 +253,6 @@
     background: #28a745;
     color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-weight: 500;
     cursor: pointer;
@@ -345,11 +334,6 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.75rem;
-    }
-
-    .problem-meta {
-        flex-direction: column;
-        gap: 0.5rem;
     }
 
     .problems-header h1 {
