@@ -46,6 +46,8 @@
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
     transition: background-color 0.2s ease;
 }
 
@@ -57,6 +59,80 @@
     flex: 1;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.generate-problems-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.generate-problems-button:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.generate-problems-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.generate-problems-button.generating {
+    background: #6c757d;
+    position: relative;
+}
+
+.generate-problems-button.generating::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.expand-button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.2s ease;
+    min-width: 24px;
+    text-align: center;
+}
+
+.expand-button:hover {
+    color: #007bff;
+}
 .type-stats {
     display: flex;
     flex-direction: column;
@@ -102,21 +178,6 @@
     color: #333;
     min-width: 35px;
     text-align: right;
-}
-
-.expand-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-}
-
-.expand-button:hover {
-    background-color: rgba(0, 123, 255, 0.1);
 }
 
 .competencies-section {

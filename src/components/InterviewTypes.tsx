@@ -48,6 +48,9 @@ export default function InterviewTypes() {
   const [expandedCompetencies, setExpandedCompetencies] = useState<Set<string>>(
     new Set()
   );
+  const [generatingProblems, setGeneratingProblems] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     fetchInterviewTypes();
@@ -94,6 +97,48 @@ export default function InterviewTypes() {
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const generateProblems = async (interviewTypeId: string) => {
+    try {
+      setGeneratingProblems((prev) => new Set(prev).add(interviewTypeId));
+
+      const { data, error } = await supabase.functions.invoke(
+        "generate-problems",
+        {
+          body: {
+            interviewTypeId: interviewTypeId,
+          },
+        }
+      );
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Show success message
+      alert(`Successfully generated ${data.count} new problems!`);
+
+      // Refresh the data to show new problems
+      await fetchInterviewTypes();
+    } catch (err) {
+      console.error("Failed to generate problems:", err);
+      alert(
+        `Failed to generate problems: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
+    } finally {
+      setGeneratingProblems((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(interviewTypeId);
+        return newSet;
+      });
     }
   };
 
@@ -157,6 +202,14 @@ export default function InterviewTypes() {
     return Math.round(total / competencies.length);
   };
 
+  const isBehavioralType = (type: string) => {
+    return (
+      type.toLowerCase().includes("behavioral") ||
+      type.toLowerCase().includes("culture") ||
+      type.toLowerCase().includes("leadership")
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="interview-types-container">
@@ -199,6 +252,7 @@ export default function InterviewTypes() {
         <div className="interview-types-grid">
           {interviewTypes.map((type) => {
             const isExpanded = expandedTypes.has(type.id);
+            const isGenerating = generatingProblems.has(type.id);
 
             return (
               <div key={type.id} className="interview-type-card">
@@ -214,9 +268,25 @@ export default function InterviewTypes() {
                       <span>{type.type}</span>
                     </h3>
                   </div>
-                  <button className="expand-button">
-                    {isExpanded ? "▼" : "▶"}
-                  </button>
+                  <div className="header-actions">
+                    {isBehavioralType(type.type) && (
+                      <button
+                        className={`generate-problems-button ${
+                          isGenerating ? "generating" : ""
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          generateProblems(type.id);
+                        }}
+                        disabled={isGenerating}
+                      >
+                        {isGenerating ? "Generating..." : "Generate Problems"}
+                      </button>
+                    )}
+                    <button className="expand-button">
+                      {isExpanded ? "▼" : "▶"}
+                    </button>
+                  </div>
                 </div>
 
                 {isExpanded && (

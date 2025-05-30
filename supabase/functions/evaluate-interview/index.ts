@@ -140,8 +140,40 @@ Guidelines for NEW competencies:
 - New competency names should be specific and relevant to ${problemData.interview_types.type} interviews
 - Examples might include: "Error Handling", "Code Optimization", "Testing Strategy", "Communication Skills", etc.
 
+${problemData.interview_types.type.toLowerCase().includes('behavioral') ? `
+SPECIAL BEHAVIORAL INTERVIEW EVALUATION CRITERIA:
+For behavioral interviews, focus on evaluating the depth and impact of answers as they relate to senior software engineers:
+
+- DEPTH: Look for specific technical details, concrete examples, and measurable outcomes
+- IMPACT: Assess the scope of influence (team, organization, technical systems, business metrics)
+- SENIOR-LEVEL THINKING: Evaluate strategic thinking, technical leadership, and complex problem-solving
+- STAR METHOD: Check if responses follow Situation, Task, Action, Result structure
+- TECHNICAL LEADERSHIP: Look for examples of mentoring, architecture decisions, cross-team collaboration
+- BUSINESS IMPACT: Assess understanding of how technical decisions affect business outcomes
+
+Score behavioral competencies based on:
+- 90-100: Demonstrates exceptional senior-level impact with specific, measurable outcomes and strategic thinking
+- 80-89: Shows strong senior-level examples with good depth and clear impact
+- 70-79: Provides adequate examples but may lack depth, specificity, or senior-level perspective
+- 60-69: Basic examples provided but limited impact or junior-level thinking
+- Below 60: Vague responses, no concrete examples, or inappropriate level for senior role
+
+For behavioral improvement notes, focus on:
+- Adding more specific metrics and measurable outcomes
+- Demonstrating broader organizational impact
+- Including more technical depth in leadership examples
+- Better articulation of strategic thinking and decision-making process
+` : ''}
+
 CRITICAL: For improvement_notes, provide SPECIFIC, ACTIONABLE examples:
 
+${problemData.interview_types.type.toLowerCase().includes('behavioral') ? `
+For behavioral interviews, instead of: "Could improve storytelling"
+Write: "Could improve by adding specific metrics and outcomes. For example: 'The refactoring reduced deployment time from 2 hours to 15 minutes, improved team velocity by 30%, and reduced production incidents by 60% over 6 months.' Also include more details about stakeholder management and how you built consensus across teams."
+
+Instead of: "Need better leadership examples"
+Write: "Could strengthen leadership examples by describing the technical decision-making process. For example: 'I evaluated three architecture options (microservices, modular monolith, serverless), created a decision matrix weighing factors like team expertise, scalability needs, and maintenance overhead, then facilitated workshops with 4 teams to build consensus on the microservices approach, resulting in 40% faster feature delivery.'"
+` : `
 Instead of: "They could improve by discussing trade-offs between consistency, availability, and partition tolerance"
 Write: "They could improve by discussing trade-offs between consistency, availability, and partition tolerance. For example: choosing eventual consistency for user posts to maintain availability during network partitions, or using strong consistency for financial transactions even if it means temporary unavailability during failures."
 
@@ -150,6 +182,7 @@ Write: "They could enhance their response by discussing service communication pa
 
 Instead of: "Could improve error handling strategies"
 Write: "Could improve error handling strategies by implementing: circuit breakers to prevent cascade failures (e.g., using Hystrix), retry mechanisms with exponential backoff for transient failures, and graceful degradation (e.g., showing cached data when the recommendation service is down)."
+`}
 
 Always include 2-3 concrete examples, specific technologies, or real-world scenarios that illustrate the improvement area.
 
