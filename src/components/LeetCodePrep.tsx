@@ -13,6 +13,8 @@ interface LeetCodeProblem {
   leetcode_categories: {
     name: string;
   };
+  level: number;
+  status: any;
 }
 
 interface LeetCodeAttempt {
@@ -25,11 +27,12 @@ interface LeetCodeAttempt {
 }
 
 export default function LeetCodePrep() {
-  const { user } = useAuth();
-  const [problems, setProblems] = useState<LeetCodeProblem[]>([]);
   const [currentProblem, setCurrentProblem] = useState<LeetCodeProblem | null>(
     null
   );
+  const { user } = useAuth();
+
+  const [totalProblemsCount, setTotalProblemsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -40,11 +43,52 @@ export default function LeetCodePrep() {
 
   // Queue state
   const [queue, setQueue] = useState<LeetCodeProblem[]>([]);
-  const [attempts, setAttempts] = useState<LeetCodeAttempt[]>([]);
+
+  const fetchProblems = async () => {
+    const { count, data, error } = await supabase
+      .from("leetcode_problems")
+      .select("*, leetcode_categories(*), leetcode_attempts(*)", {
+        count: "exact",
+      });
+
+    if (error || !data || data.length === 0) {
+      console.error("Error fetching problems:", error);
+      setError("Error fetching problems");
+      setIsLoading(false);
+      return;
+    }
+
+    setTotalProblemsCount(count || 0);
+
+    const filteredQueue = data.filter(
+      (problem) =>
+        (problem.leetcode_attempts.length &&
+          problem.leetcode_attempts[0].next_review_date <
+            new Date().toISOString()) ||
+        !problem.leetcode_attempts.length
+    );
+
+    const transformedQueue = filteredQueue.map((problem) => ({
+      ...problem,
+      status: problem.leetcode_attempts.length
+        ? problem.leetcode_attempts[0].level === 0
+          ? "incorrect"
+          : `v${problem.leetcode_attempts[0].level}`
+        : "not attempted",
+      level: problem.leetcode_attempts.length
+        ? problem.leetcode_attempts[0].level
+        : 0,
+    }));
+
+    console.log("transformedQueue", transformedQueue[0]);
+
+    setQueue(transformedQueue);
+    setCurrentProblem(transformedQueue[0]);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     fetchProblems();
-    fetchAttempts();
   }, []);
 
   useEffect(() => {
@@ -64,89 +108,6 @@ export default function LeetCodePrep() {
       }
     };
   }, [isTimerRunning]);
-
-  const fetchProblems = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from("leetcode_problems")
-        .select(
-          `
-          *,
-          leetcode_categories (
-            name
-          )
-        `
-        )
-        .eq("difficulty", "easy")
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-
-      setProblems(data || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch problems");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchAttempts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("leetcode_attempts")
-        .select("*")
-        .eq("user_id", user?.id);
-
-      if (error) throw error;
-
-      setAttempts(data || []);
-    } catch (err) {
-      console.error("Failed to fetch attempts:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (problems.length > 0 && attempts.length >= 0) {
-      updateQueue();
-    }
-  }, [problems, attempts]);
-
-  const updateQueue = () => {
-    const now = new Date();
-
-    // Get problems that are due for review or haven't been attempted
-    const dueProblems = problems.filter((problem) => {
-      const attempt = attempts.find((a) => a.problem_id === problem.id);
-
-      if (!attempt) {
-        // Never attempted - add to queue
-        return true;
-      }
-
-      // Check if it's due for review (must be in the past or today)
-      const nextReviewDate = new Date(attempt.next_review_date);
-      return nextReviewDate <= now;
-    });
-
-    setQueue(dueProblems);
-
-    // If current problem is no longer in queue (was completed/mastered), move to next
-    if (
-      currentProblem &&
-      !dueProblems.find((p) => p.id === currentProblem.id)
-    ) {
-      if (dueProblems.length > 0) {
-        setCurrentProblem(dueProblems[0]);
-      } else {
-        setCurrentProblem(null);
-      }
-    }
-    // Set current problem to first in queue if none selected
-    else if (!currentProblem && dueProblems.length > 0) {
-      setCurrentProblem(dueProblems[0]);
-    }
-  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -169,79 +130,67 @@ export default function LeetCodePrep() {
     setTimeElapsed(0);
   };
 
+  const getDaysToAdd = (level: number) => {
+    switch (level) {
+      case 0:
+        return 1;
+      case 1:
+        return 2;
+      case 2:
+        return 4;
+      case 3:
+        return 7;
+      case 4:
+        return 14;
+      case 5:
+        return 30;
+      case 6:
+        return 60;
+      default:
+        return 60;
+    }
+  };
   const getNextReviewDate = (
+    level: number,
     status: "completed" | "mastered" | "incorrect"
   ) => {
     const now = new Date();
+
+    const daysToAdd = getDaysToAdd(level);
     if (status === "completed") {
-      // Schedule for 3 days from now
-      now.setDate(now.getDate() + 3);
-    } else if (status === "mastered") {
-      // Schedule for 1 week from now
-      now.setDate(now.getDate() + 7);
+      now.setDate(now.getDate() + daysToAdd);
     } else if (status === "incorrect") {
-      // Schedule for tomorrow
       now.setDate(now.getDate() + 1);
     }
     return now.toISOString();
   };
 
   const handleComplete = async (
-    status: "completed" | "mastered" | "incorrect"
+    currentProblem: LeetCodeProblem,
+    status: "completed" | "incorrect"
   ) => {
-    if (!currentProblem || !user) return;
+    const nextReviewDate = getNextReviewDate(currentProblem.level, status);
+    const { data, error } = await supabase.from("leetcode_attempts").upsert(
+      {
+        problem_id: currentProblem.id,
+        user_id: user?.id,
+        next_review_date: nextReviewDate,
+        level: status === "completed" ? currentProblem.level + 1 : 0,
+      },
+      {
+        onConflict: "problem_id,user_id",
+      }
+    );
 
-    try {
-      const nextReviewDate = getNextReviewDate(status);
-
-      // Check if attempt already exists
-      const existingAttempt = attempts.find(
-        (a) => a.problem_id === currentProblem.id
+    if (error) {
+      console.error("Error updating leetcode_attempts:", error);
+    } else {
+      console.log("leetcode_attempts updated successfully:", data);
+      const newQueue = queue.filter(
+        (problem) => problem.id !== currentProblem.id
       );
-
-      if (existingAttempt) {
-        // Update existing attempt
-        const { error } = await supabase
-          .from("leetcode_attempts")
-          .update({
-            status,
-            next_review_date: nextReviewDate,
-          })
-          .eq("id", existingAttempt.id);
-
-        if (error) throw error;
-      } else {
-        // Create new attempt
-        const { error } = await supabase.from("leetcode_attempts").insert({
-          problem_id: currentProblem.id,
-          user_id: user.id,
-          status,
-          next_review_date: nextReviewDate,
-        });
-
-        if (error) throw error;
-      }
-
-      // Immediately remove current problem from queue and move to next
-      const currentIndex = queue.findIndex((p) => p.id === currentProblem.id);
-      const remainingQueue = queue.filter((p) => p.id !== currentProblem.id);
-
-      // Update current problem immediately to prevent flash
-      if (remainingQueue.length > 0) {
-        // If there was a next problem in queue, use it
-        const nextIndex =
-          currentIndex < remainingQueue.length ? currentIndex : 0;
-        setCurrentProblem(remainingQueue[nextIndex]);
-      } else {
-        setCurrentProblem(null);
-      }
-
-      // Refresh attempts which will trigger proper queue update
-      await fetchAttempts();
-      resetTimer();
-    } catch (err) {
-      console.error("Failed to save attempt:", err);
-      setError("Failed to save progress");
+      setQueue(newQueue);
+      setCurrentProblem(newQueue[0]);
     }
   };
 
@@ -263,11 +212,6 @@ export default function LeetCodePrep() {
     }
   };
 
-  const getProblemStatus = (problem: LeetCodeProblem) => {
-    const attempt = attempts.find((a) => a.problem_id === problem.id);
-    return attempt?.status || "not_attempted";
-  };
-
   if (isLoading) {
     return (
       <div className="leetcode-prep-container">
@@ -278,19 +222,26 @@ export default function LeetCodePrep() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="leetcode-prep-container">
-        <div className="error-message">
-          <h3>Error</h3>
-          <p>{error}</p>
-          <button onClick={fetchProblems} className="retry-button">
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const getCompletedDays = (level: number) => {
+    switch (level) {
+      case 0:
+        return "tomorrow";
+      case 1:
+        return "2 days";
+      case 2:
+        return "4 days";
+      case 3:
+        return "7 days";
+      case 4:
+        return "14 days";
+      case 5:
+        return "30 days";
+      case 6:
+        return "60 days";
+      default:
+        return "60 days";
+    }
+  };
 
   return (
     <div className="leetcode-prep-container">
@@ -302,7 +253,7 @@ export default function LeetCodePrep() {
             Queue: <strong>{queue.length}</strong> problems
           </span>
           <span className="stat">
-            Total: <strong>{problems.length}</strong> problems
+            Total: <strong>{totalProblemsCount}</strong> problems
           </span>
         </div>
       </div>
@@ -314,7 +265,7 @@ export default function LeetCodePrep() {
               <div className="problem-header">
                 <h2>{currentProblem.name}</h2>
                 <span
-                  className="difficulty-badge"
+                  className="difficulty-badge py-1 px-2"
                   style={{
                     backgroundColor: getDifficultyColor(
                       currentProblem.difficulty
@@ -326,12 +277,10 @@ export default function LeetCodePrep() {
               </div>
 
               <div className="problem-meta">
-                <span className="category">
+                <span className="category mr-2">
                   {currentProblem.leetcode_categories.name}
                 </span>
-                <span className="status">
-                  Status: {getProblemStatus(currentProblem).replace("_", " ")}
-                </span>
+                <span className="status">Status: {currentProblem.status}</span>
               </div>
 
               <div className="timer-section">
@@ -361,7 +310,7 @@ export default function LeetCodePrep() {
 
               <div className="completion-actions">
                 <button
-                  onClick={() => handleComplete("incorrect")}
+                  onClick={() => handleComplete(currentProblem, "incorrect")}
                   className="completion-btn incorrect"
                 >
                   <X size={20} />
@@ -369,19 +318,11 @@ export default function LeetCodePrep() {
                 </button>
 
                 <button
-                  onClick={() => handleComplete("completed")}
+                  onClick={() => handleComplete(currentProblem, "completed")}
                   className="completion-btn completed"
                 >
                   <CheckCircle size={20} />
-                  Completed (3 days)
-                </button>
-
-                <button
-                  onClick={() => handleComplete("mastered")}
-                  className="completion-btn mastered"
-                >
-                  <Star size={20} />
-                  Mastered (1 week)
+                  Completed ({getCompletedDays(currentProblem.level)})
                 </button>
               </div>
             </div>
@@ -427,9 +368,7 @@ export default function LeetCodePrep() {
                     <span className="category">
                       {problem.leetcode_categories.name}
                     </span>
-                    <span className={`status ${getProblemStatus(problem)}`}>
-                      {getProblemStatus(problem).replace("_", " ")}
-                    </span>
+                    <span className="status">Status: {problem.status}</span>
                   </div>
                 </div>
               ))}
@@ -439,4 +378,4 @@ export default function LeetCodePrep() {
       </div>
     </div>
   );
-}
+} 
