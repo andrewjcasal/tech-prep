@@ -4,6 +4,7 @@ import {
   useNavigate,
   useLocation,
   useParams,
+  Navigate,
 } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -155,7 +156,7 @@ export default function Layout() {
       <main className="main-container">
         <div className="main-content">
           <Routes>
-            <Route path="/" element={<InterviewPrep />} />
+            <Route path="/" element={<Navigate to="/problems" />} />
             <Route
               path="/problems"
               element={<ProblemsList onProblemClick={handleProblemClick} />}
