@@ -45,6 +45,34 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
+    // Get the user from the authorization header
+    console.log('👤 Getting authenticated user...')
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      console.error('❌ No authorization header found')
+      return new Response(
+        JSON.stringify({ error: 'Authorization required' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
+    if (userError || !user) {
+      console.error('❌ Failed to get user:', userError)
+      return new Response(
+        JSON.stringify({ error: 'Invalid authorization token' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    console.log(`✅ Authenticated user: ${user.email}`)
+
     // Get problem details and related competencies
     console.log(`🔍 Fetching problem data for ID: ${problemId}`)
     const { data: problemData, error: problemError } = await supabase
@@ -352,7 +380,8 @@ Be encouraging but honest in your evaluation. Focus on growth and specific actio
           progress_before: progressBefore,
           progress_after: progressAfter,
           improvement_notes: evalItem.improvement_notes,
-          strengths_notes: evalItem.strengths_notes
+          strengths_notes: evalItem.strengths_notes,
+          user_id: user?.id
         })
         .select()
         .single()

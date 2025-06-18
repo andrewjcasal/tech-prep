@@ -18,7 +18,6 @@ import {
   Users,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import InterviewPrep from "./InterviewPrep";
 import ProblemsList from "./ProblemsList";
 import InterviewTypes from "./InterviewTypes";
 import AIInterviewer from "./AIInterviewer";

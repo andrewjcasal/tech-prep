@@ -401,6 +401,7 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
         `
         )
         .eq("problem_id", problemId)
+        .eq("user_id", user?.id)
         .order("created_at", { ascending: false });
 
       if (historyError) throw historyError;
@@ -415,6 +416,11 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
   const handleEndInterview = async () => {
     if (!problem) return;
 
+    if (!user) {
+      alert("You must be logged in to complete the interview.");
+      return;
+    }
+
     setIsEvaluating(true);
 
     try {
@@ -424,14 +430,23 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
         content: msg.content,
       }));
 
-      const { error } = await supabase.functions.invoke("evaluate-interview", {
-        body: {
-          problemId: problemId,
-          messages: evaluationMessages,
-        },
-      });
+      console.log("Calling evaluate-interview function...");
+      const { data, error } = await supabase.functions.invoke(
+        "evaluate-interview",
+        {
+          body: {
+            problemId: problemId,
+            messages: evaluationMessages,
+          },
+        }
+      );
 
-      if (error) throw error;
+      if (error) {
+        console.error("Function call error:", error);
+        throw error;
+      }
+
+      console.log("Interview evaluation completed successfully:", data);
 
       // Show success message and go back to problems
       alert(
