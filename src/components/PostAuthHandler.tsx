@@ -4,13 +4,11 @@ import { supabase } from "../lib/supabase";
 
 interface PostAuthHandlerProps {
   selectedPlan: "weekly" | "monthly";
-  onComplete: () => void;
   onError: (error: string) => void;
 }
 
 export default function PostAuthHandler({
   selectedPlan,
-  onComplete,
   onError,
 }: PostAuthHandlerProps) {
   const { user } = useAuth();

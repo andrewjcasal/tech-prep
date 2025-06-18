@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../contexts/AuthContext";
 import "./InterviewPrep.css";
 
 interface InterviewPrepData {
@@ -31,7 +30,6 @@ interface ChatGPTResponse {
 }
 
 export default function InterviewPrep() {
-  const { user } = useAuth();
   const [formData, setFormData] = useState<InterviewPrepData>({
     jobPosting: "",
     notes: "",

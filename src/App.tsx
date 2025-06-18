@@ -30,10 +30,6 @@ function AppContent() {
     return (
       <PostAuthHandler
         selectedPlan={planParam}
-        onComplete={() => {
-          // Remove plan parameter and redirect to app
-          window.history.replaceState({}, "", "/");
-        }}
         onError={(error) => {
           alert(error);
           // Remove plan parameter and redirect to app

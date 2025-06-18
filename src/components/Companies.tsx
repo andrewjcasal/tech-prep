@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, Building2, Calendar, MapPin, ExternalLink } from "lucide-react";
 import "./Companies.css";
 
@@ -14,7 +14,7 @@ interface Company {
 }
 
 export default function Companies() {
-  const [companies, setCompanies] = useState<Company[]>([
+  const [companies] = useState<Company[]>([
     {
       id: "1",
       name: "Google",
@@ -36,7 +36,7 @@ export default function Companies() {
       notes: "Applied through careers page",
     },
   ]);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [, setShowAddForm] = useState(false);
 
   const getStatusColor = (status: Company["status"]) => {
     switch (status) {

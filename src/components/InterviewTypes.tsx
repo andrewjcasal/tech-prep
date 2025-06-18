@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import "./InterviewTypes.css";
-import { useAuth } from "../contexts/AuthContext";
 
 interface CompetencyHistory {
   id: string;
@@ -52,7 +51,6 @@ export default function InterviewTypes() {
   const [generatingProblems, setGeneratingProblems] = useState<Set<string>>(
     new Set()
   );
-  const { user } = useAuth();
 
   useEffect(() => {
     fetchInterviewTypes();
@@ -186,22 +184,6 @@ export default function InterviewTypes() {
       default:
         return "#6c757d";
     }
-  };
-
-  const getProgressLabel = (progress: number) => {
-    if (progress >= 80) return "Advanced";
-    if (progress >= 60) return "Intermediate";
-    if (progress >= 40) return "Beginner";
-    return "Not Started";
-  };
-
-  const calculateTypeProgress = (competencies: Competency[]) => {
-    if (competencies.length === 0) return 0;
-    const total = competencies.reduce(
-      (sum, comp) => sum + comp.progress_level,
-      0
-    );
-    return Math.round(total / competencies.length);
   };
 
   const isBehavioralType = (type: string) => {

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Building2, Users } from "lucide-react";
 import Companies from "./Companies";

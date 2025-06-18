@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, CheckCircle, Star, X } from "lucide-react";
+import { Play, Pause, RotateCcw, CheckCircle, X } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import "./LeetCodePrep.css";
@@ -17,15 +17,6 @@ interface LeetCodeProblem {
   status: any;
 }
 
-interface LeetCodeAttempt {
-  id: string;
-  problem_id: number;
-  user_id: string;
-  status: "completed" | "mastered" | "incorrect";
-  next_review_date: string;
-  created_at: string;
-}
-
 export default function LeetCodePrep() {
   const [currentProblem, setCurrentProblem] = useState<LeetCodeProblem | null>(
     null
@@ -34,7 +25,6 @@ export default function LeetCodePrep() {
 
   const [totalProblemsCount, setTotalProblemsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
 
   // Timer state
   const [timeElapsed, setTimeElapsed] = useState(0);
@@ -53,7 +43,6 @@ export default function LeetCodePrep() {
 
     if (error || !data || data.length === 0) {
       console.error("Error fetching problems:", error);
-      setError("Error fetching problems");
       setIsLoading(false);
       return;
     }

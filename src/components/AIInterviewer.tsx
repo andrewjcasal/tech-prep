@@ -424,15 +424,12 @@ Begin the interview with a welcoming message that doesn't repeat the problem det
         content: msg.content,
       }));
 
-      const { data, error } = await supabase.functions.invoke(
-        "evaluate-interview",
-        {
-          body: {
-            problemId: problemId,
-            messages: evaluationMessages,
-          },
-        }
-      );
+      const { error } = await supabase.functions.invoke("evaluate-interview", {
+        body: {
+          problemId: problemId,
+          messages: evaluationMessages,
+        },
+      });
 
       if (error) throw error;
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Plus,
   User,
@@ -22,7 +22,7 @@ interface Contact {
 }
 
 export default function Contacts() {
-  const [contacts, setContacts] = useState<Contact[]>([
+  const [contacts] = useState<Contact[]>([
     {
       id: "1",
       name: "Jane Smith",
@@ -45,7 +45,7 @@ export default function Contacts() {
       notes: "LinkedIn connection, very helpful",
     },
   ]);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [, setShowAddForm] = useState(false);
 
   const getRelationshipColor = (relationship: Contact["relationship"]) => {
     switch (relationship) {

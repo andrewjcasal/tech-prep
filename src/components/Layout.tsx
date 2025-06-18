@@ -11,13 +11,8 @@ import {
   List,
   Target,
   Code,
-  User,
   LogOut,
   Settings,
-  Settings2Icon,
-  HamburgerIcon,
-  Hamburger,
-  LucideHamburger,
   SlidersHorizontal,
   Users,
 } from "lucide-react";
