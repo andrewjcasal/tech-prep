@@ -19,6 +19,7 @@ import {
   Hamburger,
   LucideHamburger,
   SlidersHorizontal,
+  Users,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import InterviewPrep from "./InterviewPrep";
@@ -26,6 +27,7 @@ import ProblemsList from "./ProblemsList";
 import InterviewTypes from "./InterviewTypes";
 import AIInterviewer from "./AIInterviewer";
 import LeetCodePrep from "./LeetCodePrep";
+import Networking from "./Networking";
 import "./Layout.css";
 
 // Wrapper component to pass problemId from URL params to AIInterviewer
@@ -71,13 +73,15 @@ export default function Layout() {
           <h2>Tech Interview Prep</h2>
         </div>
         <nav className="sidebar-nav">
-          <button
-            className={`nav-item ${isActive("/") ? "active" : ""}`}
-            onClick={() => navigate("/")}
-          >
-            <FileText className="nav-icon sm:mr-4" size={20} />
-            <span className="sm:block hidden">Interview Prep</span>
-          </button>
+          {false && (
+            <button
+              className={`nav-item ${isActive("/") ? "active" : ""}`}
+              onClick={() => navigate("/")}
+            >
+              <FileText className="nav-icon sm:mr-4" size={20} />
+              <span className="sm:block hidden">Interview Prep</span>
+            </button>
+          )}
           <button
             className={`nav-item ${isActive("/problems") ? "active" : ""}`}
             onClick={() => navigate("/problems")}
@@ -101,6 +105,15 @@ export default function Layout() {
             <Code className="nav-icon sm:mr-4" size={20} />
             <span className="sm:block hidden">LeetCode Prep</span>
           </button>
+          {false && (
+            <button
+              className={`nav-item ${isActive("/networking") ? "active" : ""}`}
+              onClick={() => navigate("/networking")}
+            >
+              <Users className="nav-icon sm:mr-4" size={20} />
+              <span className="sm:block hidden">Networking</span>
+            </button>
+          )}
         </nav>
 
         <div className="sidebar-user-section">
@@ -118,7 +131,7 @@ export default function Layout() {
 
           <div className="sidebar-user-menu-container">
             <button
-              className="sidebar-user-menu-button hidden sm:block"
+              className="sidebar-user-menu-button hidden sm:block p-1.5"
               onClick={() => setShowUserMenu(!showUserMenu)}
             >
               <SlidersHorizontal size={20} />
@@ -126,10 +139,12 @@ export default function Layout() {
 
             {showUserMenu && (
               <div className="sidebar-user-menu">
-                <button className="sidebar-user-menu-item">
-                  <Settings size={16} />
-                  Settings
-                </button>
+                {false && (
+                  <button className="sidebar-user-menu-item">
+                    <Settings size={16} />
+                    Settings
+                  </button>
+                )}
                 <button
                   className="sidebar-user-menu-item"
                   onClick={handleSignOut}
@@ -152,6 +167,7 @@ export default function Layout() {
             />
             <Route path="/interview-types" element={<InterviewTypes />} />
             <Route path="/leetcode" element={<LeetCodePrep />} />
+            <Route path="/networking/*" element={<Networking />} />
             <Route
               path="/interview/:problemId"
               element={<AIInterviewerWrapper onBack={handleBackToProblems} />}

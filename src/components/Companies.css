@@ -1,0 +1,196 @@
+.companies-container {
+    padding: 2rem;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.companies-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.companies-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0 0 0.5rem 0;
+}
+
+.companies-header p {
+    color: #64748b;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.add-company-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-company-btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.companies-table-container {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.companies-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.companies-table th {
+    background-color: #f8fafc;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.companies-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.companies-table tr:hover {
+    background-color: #f8fafc;
+}
+
+.company-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-applied {
+    background-color: #e0f2fe;
+    color: #0277bd;
+}
+
+.status-interview {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.status-offer {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+}
+
+.status-rejected {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-withdrawn {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.date-cell,
+.location-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.action-link:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.empty-state svg {
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+    color: #6b7280;
+    margin: 0 0 2rem 0;
+}
+
+@media (max-width: 768px) {
+    .companies-container {
+        padding: 1rem;
+    }
+
+    .companies-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .companies-table-container {
+        overflow-x: auto;
+    }
+
+    .companies-table {
+        min-width: 600px;
+    }
+}

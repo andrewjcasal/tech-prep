@@ -155,7 +155,7 @@ export default function LandingPage() {
                     },
                   },
                 }}
-                providers={["google", "github"]}
+                providers={[]}
                 redirectTo={
                   selectedPlan && selectedPlan !== "free"
                     ? `${window.location.origin}?plan=${selectedPlan}`

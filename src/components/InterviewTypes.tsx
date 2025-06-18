@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import "./InterviewTypes.css";
+import { useAuth } from "../contexts/AuthContext";
 
 interface CompetencyHistory {
   id: string;
@@ -51,6 +52,7 @@ export default function InterviewTypes() {
   const [generatingProblems, setGeneratingProblems] = useState<Set<string>>(
     new Set()
   );
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchInterviewTypes();

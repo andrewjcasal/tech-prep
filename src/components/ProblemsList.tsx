@@ -9,7 +9,6 @@ interface Problem {
   difficulty: "Easy" | "Medium" | "Hard";
   interview_type_id: string;
   created_at: string;
-  completed: boolean;
   interview_types: {
     type: string;
     details: string;
@@ -19,6 +18,9 @@ interface Problem {
       created_at: string;
     };
   };
+  user_problem_progress: {
+    completed: boolean;
+  }[];
 }
 
 interface ProblemsListProps {
@@ -74,7 +76,8 @@ export default function ProblemsList({ onProblemClick }: ProblemsListProps) {
               notes,
               created_at
             )
-          )
+          ),
+          user_problem_progress (completed)
         `
         )
         .order("created_at", { ascending: false });
@@ -157,8 +160,7 @@ export default function ProblemsList({ onProblemClick }: ProblemsListProps) {
   return (
     <div className="problems-list-container">
       <div className="problems-header">
-        <h1>Practice Problems</h1>
-        <p>All problems generated from your interview preparation sessions</p>
+        <h1 className="text-2xl">Problems List</h1>
       </div>
 
       <div className="filters-container">
@@ -248,7 +250,7 @@ export default function ProblemsList({ onProblemClick }: ProblemsListProps) {
                   >
                     Start Interview
                   </button>
-                  {problem.completed && (
+                  {problem.user_problem_progress?.[0]?.completed && (
                     <button
                       onClick={() =>
                         window.open(
